@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Leitner Karteikarten</title>
+<meta name="theme-color" content="#2f6b5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Karteikarten">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f5f3ee;--surface:#ffffff;--surface2:#efece5;--text:#1c2220;--muted:#66706b;--line:#dedad0;
+  --accent:#2f6b5a;--accent-ink:#ffffff;--zh:#b8322a;--neuro:#2c5e9e;
+  --bad:#c2410c;--mid:#a16207;--good:#2f855a;
+  --t1:#d62828;--t2:#d97706;--t3:#2a9d3a;--t4:#1d5fd0;--t5:#8a8f8c;
+  --radius:14px;color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141816;--surface:#1d2321;--surface2:#262d2a;--text:#e8ece9;--muted:#9aa49f;--line:#323a37;
+  --accent:#5fb39a;--accent-ink:#0d1412;--zh:#ef6b61;--neuro:#79a8e8;
+  --bad:#f08a5d;--mid:#e0b44c;--good:#6fcf97;
+  --t1:#ff6b6b;--t2:#ffa94d;--t3:#5fd27a;--t4:#6ea8ff;--t5:#9aa0a6;color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#141816;--surface:#1d2321;--surface2:#262d2a;--text:#e8ece9;--muted:#9aa49f;--line:#323a37;
+  --accent:#5fb39a;--accent-ink:#0d1412;--zh:#ef6b61;--neuro:#79a8e8;
+  --bad:#f08a5d;--mid:#e0b44c;--good:#6fcf97;
+  --t1:#ff6b6b;--t2:#ffa94d;--t3:#5fd27a;--t4:#6ea8ff;--t5:#9aa0a6;color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","PingFang SC","Microsoft YaHei",sans-serif;-webkit-text-size-adjust:100%;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+body.study{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1,h2,h3{line-height:1.25;margin:.2em 0 .5em}
+h1{font-size:1.5rem}h2{font-size:1.25rem}h3{font-size:1.05rem}
+a{color:var(--accent)}
+.muted{color:var(--muted)}.small{font-size:.875rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:0 0 14px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.grow{flex:1}
+button,.btn{font:inherit;border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:10px;padding:10px 14px;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+button:hover{filter:brightness(.97)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.ghost{background:transparent;border-color:transparent;padding:8px 10px}
+button.danger{color:var(--bad)}
+button.wide{width:100%}
+button:disabled{opacity:.5;cursor:default}
+input,select,textarea{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-height:44px}
+textarea{min-height:90px;resize:vertical}
+label{display:block;margin:0 0 12px;font-size:.9rem;color:var(--muted)}
+label>input,label>select,label>textarea{margin-top:4px;color:var(--text);font-size:1rem}
+label.check{display:flex;gap:10px;align-items:center;color:var(--text);font-size:1rem}
+label.check input{width:auto;min-height:0}
+.badge{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.badge.due{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.badge.new{background:color-mix(in srgb,var(--mid) 18%,transparent);color:var(--mid)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:10}
+nav.tabs button{flex:1;max-width:190px;border:0;border-radius:0;background:transparent;flex-direction:column;gap:0;font-size:.75rem;color:var(--muted);min-height:60px}
+nav.tabs button b{font-size:1.25rem;font-weight:400}
+nav.tabs button.on{color:var(--accent);font-weight:600}
+.rubric{border-left:5px solid var(--zh)}
+.rubric.neuro{border-left-color:var(--neuro)}
+.rubric .icon{font-size:1.6rem;width:44px;height:44px;border-radius:12px;background:var(--surface2);display:inline-flex;align-items:center;justify-content:center}
+.stat3{display:flex;gap:14px;margin:8px 0 12px;flex-wrap:wrap}
+.stat3 div{min-width:70px}.stat3 b{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}
+details summary{cursor:pointer;color:var(--muted);padding:6px 0}
+.decklist{list-style:none;margin:0;padding:0}
+.decklist li{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.decklist li:first-child{border-top:0}
+.decklist li .grow{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.clickable{cursor:pointer}
+.cardlist{list-style:none;margin:0;padding:0}
+.cardlist li{padding:10px 4px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;cursor:pointer}
+.cardlist li .grow{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Lernen */
+.studybar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.progress{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;flex:1}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.flash{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;min-height:260px;display:flex;flex-direction:column;gap:12px}
+.flash .meta{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;color:var(--muted)}
+.flash .q{text-align:center;margin:auto 0;padding:10px 0}
+.hanzi{font-size:clamp(3rem,14vw,5rem);line-height:1.15;font-family:"Noto Serif SC","Songti SC","SimSun","Noto Sans SC","PingFang SC",serif;letter-spacing:.04em}
+.hanzi.mid{font-size:2.6rem}
+.pinyin{font-size:1.35rem}
+.meaning{font-size:1.4rem;font-weight:600}
+.t1{color:var(--t1)}.t2{color:var(--t2)}.t3{color:var(--t3)}.t4{color:var(--t4)}.t5{color:var(--t5)}
+.answer{border-top:1px dashed var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.answer>.hanzi,.answer>.pinyin,.answer>.meaning{text-align:center}
+.seg.full{display:flex;width:100%}.seg.full button{flex:1;padding:6px 4px;font-size:.88rem}
+.examples{list-style:none;padding:0;margin:4px 0 0;text-align:left}
+.examples li{background:var(--surface2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.examples .ezh{font-size:1.2rem;font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif}
+.examples .epy{font-size:.95rem}
+.examples .ede{color:var(--muted);font-size:.95rem}
+.speak{border-radius:99px;min-width:44px;padding:8px 12px}
+.bigspeak{font-size:2.4rem;width:110px;height:110px;border-radius:50%;margin:0 auto}
+.qtext{font-size:1.2rem;text-align:left}
+.rich{text-align:left}
+.rich ul{margin:.3em 0;padding-left:1.3em}
+.gap{display:inline-block;min-width:3em;border-bottom:2px solid var(--accent);color:var(--accent);font-weight:600;text-align:center}
+mark.cl{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--text);padding:0 3px;border-radius:4px;font-weight:600}
+.note{font-size:.9rem;color:var(--muted);text-align:left;white-space:pre-wrap}
+.mine{font-size:.85rem;color:var(--muted);text-align:left}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.cls{border-collapse:collapse;width:100%;font-size:.95rem;text-align:left}
+table.cls th,table.cls td{border:1px solid var(--line);padding:7px 8px;vertical-align:top}
+table.cls th{background:var(--surface2)}
+table.cls td.key{font-weight:600;white-space:nowrap}
+table.cls input{min-height:36px;padding:6px 8px;font-size:.9rem}
+table.cls .yours{display:block;font-size:.8rem;color:var(--muted);margin-top:3px}
+.grades{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:11}
+.grades .in{max-width:760px;margin:0 auto;display:flex;gap:8px}
+.grades button{flex:1;min-height:56px;flex-direction:column;gap:0;font-weight:600}
+.grades button small{font-weight:400;font-size:.72rem;opacity:.85}
+.g0{background:color-mix(in srgb,var(--bad) 16%,var(--surface));border-color:color-mix(in srgb,var(--bad) 40%,transparent);color:var(--bad)}
+.g1{background:color-mix(in srgb,var(--mid) 16%,var(--surface));border-color:color-mix(in srgb,var(--mid) 40%,transparent);color:var(--mid)}
+.g2{background:color-mix(in srgb,var(--good) 16%,var(--surface));border-color:color-mix(in srgb,var(--good) 40%,transparent);color:var(--good)}
+.recall{min-height:44px}
+/* Statistik */
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.bar span:first-child{width:72px;color:var(--muted)}
+.bar .track{flex:1;height:14px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bar .track i{display:block;height:100%;background:var(--accent)}
+.bar span:last-child{width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.cols7{display:flex;gap:6px;align-items:flex-end;height:110px}
+.cols7 div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:.75rem;color:var(--muted)}
+.cols7 i{display:block;width:100%;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
+.cols7 b{color:var(--text);font-weight:600}
+.seg{display:inline-flex;background:var(--surface2);border-radius:10px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;min-height:36px;padding:6px 12px}
+.seg button.on{background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal .box{background:var(--surface);border-radius:var(--radius);padding:18px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px}
+.modal p{margin:0}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:50;max-width:calc(100% - 32px);font-size:.9rem;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.exgroup{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
+.preview{padding:8px 10px;background:var(--surface2);border-radius:10px;margin:-4px 0 12px}
+code,pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem}
+pre{background:var(--surface2);padding:10px;border-radius:10px;overflow-x:auto;white-space:pre}
+@media (max-width:480px){main{padding:12px 16px}.flash{padding:18px 14px}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav class="tabs" id="tabs"></nav>
+<script>
+'use strict';
+/* ========== Grundlagen ========== */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const INTERVALS=[0,1,2,4,8,16]; // Tage je Box 1–5
+const RUBRICS={zh:{name:'Chinesisch',icon:'中'},neuro:{name:'Neurochirurgie',icon:'🧠'}};
+const DIRS={hz:'Hanzi → Deutsch',de:'Deutsch → Hanzi',au:'Hören → Bedeutung'};
+const TYPES={zh:'Vokabel',basic:'Frage / Definition',cloze:'Lückentext',table:'Klassifikation (Tabelle)'};
+const KEY='leitner-karten-v1';
+
+const defaults=()=>({app:'leitner-karten',version:1,decks:[],cards:[],progress:{},deleted:{},log:{},
+  settings:{newPerDay:20,sessionSize:60,dirs:{hz:true,de:true,au:false},autoplay:true,rate:0.85,sel:{zh:null,neuro:null},mode:{zh:'due',neuro:'due'},theme:'auto'}});
+function load(){
+  try{const raw=localStorage.getItem(KEY);if(raw){const s=JSON.parse(raw),d=defaults();
+    return {...d,...s,settings:{...d.settings,...(s.settings||{}),dirs:{...d.settings.dirs,...((s.settings||{}).dirs||{})},sel:{...d.settings.sel,...((s.settings||{}).sel||{})},mode:{...d.settings.mode,...((s.settings||{}).mode||{})}}};}}catch(e){console.error(e)}
+  return defaults();
+}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Speichern fehlgeschlagen: '+e.message)}if(!syncing)scheduleSync()}
+function ask(msg,{input=false,value='',ok='OK',danger=false}={}){return new Promise(res=>{const d=document.createElement('div');d.className='modal';
+  d.innerHTML=`<div class="box" role="dialog"><p>${esc(msg)}</p>${input?`<input id="ask-in" value="${esc(value)}">`:''}<div class="row" style="justify-content:flex-end"><button id="ask-no">Abbrechen</button><button id="ask-ok" class="${danger?'danger':'primary'}">${esc(ok)}</button></div></div>`;
+  document.body.appendChild(d);const inp=d.querySelector('#ask-in');const done=v=>{d.remove();res(v)};
+  d.querySelector('#ask-no').onclick=()=>done(input?null:false);d.querySelector('#ask-ok').onclick=()=>done(input?inp.value:true);
+  if(inp){inp.focus();inp.select();inp.onkeydown=e=>{if(e.key==='Enter')done(inp.value)}}else d.querySelector('#ask-ok').focus()})}
+function toast(msg,ms=2600){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),ms)}
+function applyTheme(){if(S.settings.theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',S.settings.theme)}
+
+/* ========== Cloud-Sync (privates GitHub Gist) ========== */
+let syncing=false,syncTimer=null,syncStatus='';
+const GIST_FILE='karteikarten-sync.json';
+const syncCfg=()=>S.settings.sync||{};
+function exportable(){const o=JSON.parse(JSON.stringify(S));if(o.settings)delete o.settings.sync;return o}
+function scheduleSync(ms=15000){if(!syncCfg().token)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow(true),ms)}
+async function gh(path,opt={}){
+  const r=await fetch('https://api.github.com'+path,{...opt,headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+syncCfg().token,...(opt.body?{'Content-Type':'application/json'}:{})}});
+  if(r.status===401)throw new Error('Token ungültig oder abgelaufen');
+  if(!r.ok)throw new Error('GitHub '+r.status);return r.json();
+}
+async function syncNow(quiet){
+  const cfg=syncCfg();if(!cfg.token||syncing)return;
+  if(!navigator.onLine){syncStatus='offline – wird später abgeglichen';return}
+  syncing=true;clearTimeout(syncTimer);
+  try{
+    let gid=cfg.gistId,remote=null;
+    if(!gid){const list=await gh('/gists?per_page=100');const g=list.find(x=>x.files&&x.files[GIST_FILE]);if(g)gid=g.id}
+    if(gid){const g=await gh('/gists/'+gid);const f=g.files[GIST_FILE];
+      if(f){let txt=f.content;if(f.truncated)txt=await (await fetch(f.raw_url)).text();try{remote=JSON.parse(txt)}catch(e){}}}
+    let msg='';if(remote&&remote.app==='leitner-karten')msg=mergeBackup(remote);
+    const body=JSON.stringify({description:'Karteikarten-Sync (Leitner-App)',files:{[GIST_FILE]:{content:JSON.stringify(exportable())}}});
+    if(gid)await gh('/gists/'+gid,{method:'PATCH',body});else{const g=await gh('/gists',{method:'POST',body:JSON.stringify({...JSON.parse(body),public:false})});gid=g.id}
+    S.settings.sync={...syncCfg(),gistId:gid,last:Date.now(),error:''};
+    localStorage.setItem(KEY,JSON.stringify(S));syncStatus='';
+    if(!quiet)toast('Synchronisiert'+(msg?' · '+msg.replace('Backup zusammengeführt: ',''):''));
+    if(view!=='study'&&view!=='edit')render();
+  }catch(e){S.settings.sync={...syncCfg(),error:e.message};localStorage.setItem(KEY,JSON.stringify(S));if(!quiet)toast('Sync fehlgeschlagen: '+e.message,5000)}
+  finally{syncing=false}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&syncTimer)syncNow(true);else if(document.visibilityState==='visible'&&view!=='study')syncNow(true)});
+window.addEventListener('online',()=>syncNow(true));
+
+/* ========== Pinyin & Töne ========== */
+const TONE_MARKS={a:'āáǎà',e:'ēéěè',i:'īíǐì',o:'ōóǒò',u:'ūúǔù','ü':'ǖǘǚǜ'};
+const MARK2={};
+for(const [v,s] of Object.entries(TONE_MARKS))[...s].forEach((ch,i)=>{MARK2[ch]={b:v,t:i+1};MARK2[ch.toUpperCase()]={b:v,t:i+1}});
+function numToMark(syl){
+  const m=syl.match(/^([A-Za-züÜ:]+)([1-5])$/);if(!m)return syl;
+  let s=m[1].replace(/u:|v/g,'ü').replace(/U:|V/g,'Ü');const t=+m[2];if(t===5)return s;
+  const low=s.toLowerCase();let idx=low.indexOf('a');if(idx<0)idx=low.indexOf('e');
+  if(idx<0&&low.includes('ou'))idx=low.indexOf('o');
+  if(idx<0)for(let i=low.length-1;i>=0;i--)if('aeiouü'.includes(low[i])){idx=i;break}
+  if(idx<0)return s;
+  const ch=s[idx],base=ch.toLowerCase();let mk=TONE_MARKS[base][t-1];if(ch!==base)mk=mk.toUpperCase();
+  return s.slice(0,idx)+mk+s.slice(idx+1);
+}
+const normalizePinyin=p=>String(p||'').normalize('NFC').replace(/[A-Za-züÜ:]+[1-5]/g,numToMark);
+const SYL=/(?:zh|ch|sh|[bpmfdtnlgkhjqxrzcsyw])?(?:iang|iong|uang|ueng|üan|ang|eng|ing|ong|ian|iao|uai|uan|üe|ue|ai|ei|ao|ou|an|en|er|in|un|ün|ia|ie|iu|ua|uo|ui|a|o|e|i|u|ü)/y;
+function segPinyin(p){
+  p=normalizePinyin(p);let base='';const tones=[];
+  for(const ch of p){const m=MARK2[ch];base+=m?m.b:ch.toLowerCase();tones.push(m?m.t:0)}
+  const out=[];let i=0;
+  while(i<p.length){
+    SYL.lastIndex=i;const m=SYL.exec(base);
+    if(m&&m[0].length){const end=i+m[0].length;let t=0;for(let j=i;j<end;j++)if(tones[j])t=tones[j];out.push({s:p.slice(i,end),t:t||5});i=end}
+    else{const last=out[out.length-1];if(last&&last.sep)last.s+=p[i];else out.push({s:p[i],sep:true});i++}
+  }
+  return out;
+}
+const pinyinHTML=p=>segPinyin(p).map(s=>s.sep?esc(s.s):`<span class="t${s.t}">${esc(s.s)}</span>`).join('');
+const isHan=ch=>/\p{Script=Han}/u.test(ch);
+function hanziHTML(hz,py,color){
+  if(!color||!py)return esc(hz);
+  const syl=segPinyin(py).filter(x=>!x.sep),chars=[...hz];
+  if(chars.filter(isHan).length!==syl.length)return esc(hz);
+  let k=0;return chars.map(ch=>isHan(ch)?`<span class="t${syl[k++].t}">${esc(ch)}</span>`:esc(ch)).join('');
+}
+
+/* ========== Sprachausgabe ========== */
+let zhVoice=null;
+function pickVoice(){const vs=speechSynthesis.getVoices();zhVoice=vs.find(v=>/zh[-_]CN/i.test(v.lang))||vs.find(v=>/^zh|^cmn/i.test(v.lang))||vs.find(v=>/chinese|mandarin/i.test(v.name))||null}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(text){
+  if(!('speechSynthesis' in window))return toast('Sprachausgabe wird von diesem Browser nicht unterstützt');
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';if(zhVoice)u.voice=zhVoice;u.rate=S.settings.rate;speechSynthesis.speak(u);
+}
+
+/* ========== Text-Formatierung ========== */
+function md(s){
+  s=esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*(?!\s)(.+?)\*/g,'$1<i>$2</i>');
+  const lines=s.split(/\r?\n/);let out='',inList=false;
+  for(const l of lines){const m=l.match(/^\s*[-•]\s+(.*)/);
+    if(m){if(!inList){out+='<ul>';inList=true}out+=`<li>${m[1]}</li>`}
+    else{if(inList){out+='</ul>';inList=false}out+=l+'<br>'}}
+  if(inList)out+='</ul>';return out.replace(/(<br>)+$/,'');
+}
+const CLOZE=/\{\{c(\d+)::(.*?)(?:::(.*?))?\}\}/g;
+function clozeNums(text){const s=new Set();String(text||'').replace(/\{\{c(\d+)::/g,(m,n)=>s.add(+n));return [...s].sort((a,b)=>a-b)}
+function clozeHTML(text,n,reveal){
+  return md(String(text||'').replace(CLOZE,(m,num,ans,hint)=>`\u0001${num}\u0002${ans}\u0002${hint||''}\u0003`))
+    .replace(/\u0001(\d+)\u0002(.*?)\u0002(.*?)\u0003/g,(m,num,ans,hint)=>+num===n?(reveal?`<mark class="cl">${ans}</mark>`:`<span class="gap">[${hint||'…'}]</span>`):ans);
+}
+const clozePlain=t=>String(t||'').replace(CLOZE,'$2');
+
+/* ========== Daten-Modell ========== */
+const deckById=id=>S.decks.find(d=>d.id===id);
+const cardById=id=>S.cards.find(c=>c.id===id);
+function itemsOf(c){
+  switch(c.type){
+    case 'zh':return Object.keys(DIRS).filter(d=>S.settings.dirs[d]).map(d=>c.id+'|'+d);
+    case 'basic':return c.reverse?[c.id+'|f',c.id+'|r']:[c.id+'|f'];
+    case 'cloze':return clozeNums(c.text).map(n=>c.id+'|c'+n);
+    case 'table':return [c.id+'|t'];
+  }return [];
+}
+function decksOf(r){return S.decks.filter(d=>d.rubric===r).sort((a,b)=>a.name.localeCompare(b.name,'de',{numeric:true}))}
+function cardsOf(r,deckIds){const ds=new Set(S.decks.filter(d=>d.rubric===r&&(!deckIds||deckIds.includes(d.id))).map(d=>d.id));return S.cards.filter(c=>ds.has(c.deck))}
+function itemsOfRubric(r,deckIds){return cardsOf(r,deckIds).flatMap(c=>itemsOf(c).map(k=>({key:k,card:c})))}
+function counts(r,deckIds){const t=today();let due=0,nw=0,total=0;for(const it of itemsOfRubric(r,deckIds)){total++;const p=S.progress[it.key];if(!p)nw++;else if(p.due<=t)due++}return {due,nw,total}}
+function newToday(r){return ((S.log[today()]||{}).new||{})[r]||0}
+function newAvail(r,deckIds){return Math.min(counts(r,deckIds).nw,Math.max(0,S.settings.newPerDay-newToday(r)))}
+function cardLabel(c){
+  switch(c.type){case 'zh':return `${c.hanzi} · ${c.meaning||''}`;case 'basic':return c.front;case 'cloze':return clozePlain(c.text);case 'table':return c.title}return '';
+}
+function itemLabel(key){const [id,d]=key.split('|');const c=cardById(id);if(!c)return '';
+  let suf='';if(c.type==='zh')suf=` (${DIRS[d]||d})`;else if(c.type==='cloze')suf=` (Lücke ${d.slice(1)})`;else if(d==='r')suf=' (umgekehrt)';
+  return cardLabel(c)+suf}
+function ensureDeck(rubric,name){name=String(name||'Allgemein').trim()||'Allgemein';let d=S.decks.find(x=>x.rubric===rubric&&x.name.toLowerCase()===name.toLowerCase());
+  if(!d){d={id:uid(),rubric,name,created:Date.now()};S.decks.push(d)}return d}
+function cardKey(c){switch(c.type){case 'zh':return c.hanzi;case 'basic':return c.front;case 'cloze':return c.text;case 'table':return c.title}return ''}
+function upsertCard(deck,c){
+  const ex=S.cards.find(x=>x.deck===deck.id&&x.type===c.type&&String(cardKey(x)).trim()===String(cardKey(c)).trim());
+  if(ex){Object.assign(ex,c,{id:ex.id,deck:deck.id,updated:Date.now()});return false}
+  S.cards.push({...c,id:uid(),deck:deck.id,created:Date.now(),updated:Date.now()});return true;
+}
+function deleteCard(id){S.cards=S.cards.filter(c=>c.id!==id);S.deleted[id]=Date.now();for(const k of Object.keys(S.progress))if(k.startsWith(id+'|'))delete S.progress[k]}
+function deleteDeck(id){for(const c of S.cards.filter(c=>c.deck===id))deleteCard(c.id);S.decks=S.decks.filter(d=>d.id!==id);S.deleted[id]=Date.now()}
+
+/* ========== Router ========== */
+let view='learn',param=null,draft=null,sess=null;
+function go(v,p=null,push=true){view=v;param=p;if(push)try{history.pushState({v,p},'')}catch(e){}render();window.scrollTo(0,0)}
+window.addEventListener('popstate',e=>{const st=e.state||{v:'learn'};if(view==='study'&&sess&&st.v!=='study')sess=null;view=st.v;param=st.p;render()});
+function render(){
+  applyTheme();
+  document.body.classList.toggle('study',view==='study');
+  const tabs=[['learn','▶','Lernen'],['decks','☰','Stapel'],['stats','▤','Statistik'],['data','⇅','Daten']];
+  const nav=$('#tabs');nav.style.display=view==='study'?'none':'flex';
+  const cur=view==='deck'||view==='edit'?'decks':view;
+  nav.innerHTML=tabs.map(([v,i,l])=>`<button class="${cur===v?'on':''}" onclick="go('${v}')"><b>${i}</b>${l}</button>`).join('');
+  const app=$('#app');
+  ({learn:renderLearn,study:renderStudy,decks:renderDecks,deck:renderDeck,edit:renderEdit,stats:renderStats,data:renderData}[view]||renderLearn)(app);
+}
+
+/* ========== Ansicht: Lernen (Start) ========== */
+function renderLearn(app){
+  if(!S.cards.length){
+    app.innerHTML=`<h1>Karteikarten</h1>
+    <div class="panel"><h2>Willkommen</h2>
+    <p>Zwei Rubriken: <b>Chinesisch</b> und <b>Neurochirurgie</b>. Innerhalb einer Rubrik lernst du alle Stapel gemischt, die beiden Rubriken werden nie vermischt.</p>
+    <p>Gelernt wird mit dem Leitner-System: 5 Boxen mit 1, 2, 4, 8 und 16 Tagen Abstand. Gewusst rückt eine Box weiter, nicht gewusst geht zurück in Box 1.</p>
+    <div class="row"><button class="primary" onclick="A.loadSamples()">Beispielkarten laden</button><button onclick="go('data')">Eigene Karten importieren</button><button onclick="go('decks')">Selbst anlegen</button></div></div>`;
+    return;
+  }
+  let h='<h1>Lernen</h1>';
+  for(const r of Object.keys(RUBRICS)){
+    const decks=decksOf(r);const sel=(S.settings.sel[r]||[]).filter(id=>deckById(id));const selIds=sel.length?sel:null;
+    const c=counts(r,selIds);const na=newAvail(r,selIds);const mode=S.settings.mode[r];
+    const n=mode==='due'?Math.min(S.settings.sessionSize,c.due+na):null;
+    h+=`<div class="panel rubric ${r}">
+      <div class="row"><span class="icon">${RUBRICS[r].icon}</span><div class="grow"><h2 style="margin:0">${RUBRICS[r].name}</h2>
+      <div class="small muted">${selIds?sel.length+' von '+decks.length+' Stapeln':'Alle '+decks.length+' Stapel gemischt'}</div></div></div>
+      <div class="stat3"><div><b>${c.due}</b><span class="small muted">fällig</span></div><div><b>${na}</b><span class="small muted">neu heute</span></div><div><b>${c.total}</b><span class="small muted">Lernkarten</span></div></div>
+      <div class="row" style="margin-bottom:8px"><div class="seg full">
+        ${[['due','Fällig & neu'],['weak','Schwächen'],['all','Frei üben']].map(([m,l])=>`<button class="${mode===m?'on':''}" onclick="A.setMode('${r}','${m}')">${l}</button>`).join('')}
+      </div></div>
+      <button class="primary wide" ${decks.length?'':'disabled'} onclick="A.start('${r}')">${mode==='due'?(n?`${n} Karten lernen`:'Heute nichts fällig'):mode==='weak'?'Schwachstellen wiederholen':'Gemischt üben (ohne Wertung)'}</button>
+      ${decks.length?`<details style="margin-top:8px"><summary>Stapel auswählen</summary>
+        <div class="row" style="margin:6px 0"><button class="ghost small" onclick="A.selAll('${r}',true)">Alle</button><button class="ghost small" onclick="A.selAll('${r}',false)">Keine</button></div>
+        ${decks.map(d=>{const dc=counts(r,[d.id]);return `<label class="check"><input type="checkbox" ${!selIds||sel.includes(d.id)?'checked':''} onchange="A.toggleSel('${r}','${d.id}',this.checked)"> <span class="grow">${esc(d.name)}</span> <span class="badge due">${dc.due} fällig</span> <span class="badge new">${dc.nw} neu</span></label>`}).join('')}
+      </details>`:'<p class="small muted">Noch keine Stapel.</p>'}
+    </div>`;
+  }
+  const last=S.settings.lastExport;
+  if(S.cards.length&&!syncCfg().token&&(!last||Date.now()-last>7*864e5))h+=`<p class="small muted">Tipp: ${last?'Letztes Backup vor über einer Woche.':'Noch kein Backup erstellt.'} Unter <a href="#" onclick="go('data');return false">Daten</a> den automatischen Sync einrichten.</p>`;
+  app.innerHTML=h;
+}
+
+/* ========== Lern-Sitzung ========== */
+function startSession(r,mode){
+  const sel=(S.settings.sel[r]||[]).filter(id=>deckById(id));const deckIds=sel.length?sel:null;
+  const t=today();const all=itemsOfRubric(r,deckIds);let q;
+  if(mode==='due'){
+    const due=shuffle(all.filter(i=>{const p=S.progress[i.key];return p&&p.due<=t}));
+    const nw=all.filter(i=>!S.progress[i.key]);
+    q=due.slice(0,S.settings.sessionSize);
+    const room=Math.max(0,S.settings.sessionSize-q.length);
+    q=q.concat(shuffle(nw).slice(0,Math.min(room,Math.max(0,S.settings.newPerDay-newToday(r)))));
+  }else if(mode==='weak'){
+    q=all.filter(i=>{const p=S.progress[i.key];return p&&p.bad>0&&p.box<=2}).sort((a,b)=>errRate(b.key)-errRate(a.key)).slice(0,S.settings.sessionSize);
+  }else q=shuffle(all).slice(0,S.settings.sessionSize);
+  if(!q.length)return toast(mode==='weak'?'Keine Schwachstellen – gut gemacht!':'Gerade nichts zu lernen. Neue Karten: Tageslimit unter Daten → Einstellungen.');
+  q=shuffle(q);
+  sess={r,mode,queue:q.map(i=>({key:i.key,retry:0,id:uid()})),pos:0,right:0,wrong:0,total:q.length,revealed:false,inputs:{}};
+  go('study');
+}
+function errRate(k){const p=S.progress[k];return p?(p.bad+1)/(p.seen+2):0}
+function curItem(){return sess&&sess.queue[sess.pos]}
+function renderStudy(app){
+  if(!sess){go('learn',null,false);return}
+  const it=curItem();
+  if(!it){
+    const pct=sess.right+sess.wrong?Math.round(100*sess.right/(sess.right+sess.wrong)):0;
+    const c=counts(sess.r);
+    app.innerHTML=`<div class="panel" style="text-align:center"><h1>Geschafft 🎉</h1>
+      <p>${sess.right+sess.wrong} Karten · <b>${pct}%</b> beim ersten Versuch gewusst</p>
+      <p class="muted small">Noch fällig in ${RUBRICS[sess.r].name}: ${c.due}</p>
+      <div class="row" style="justify-content:center"><button class="primary" onclick="sess=null;go('learn')">Zurück</button>${c.due||newAvail(sess.r)?`<button onclick="A.start('${sess.r}')">Weiterlernen</button>`:''}</div></div>`;
+    $('.grades')?.remove();return;
+  }
+  const c=cardById(it.key.split('|')[0]);
+  if(!c){sess.pos++;return renderStudy(app)}
+  const dir=it.key.split('|')[1];const deck=deckById(c.deck);const p=S.progress[it.key];
+  const done=sess.pos;const tot=sess.queue.length;
+  let h=`<div class="studybar"><button class="ghost" onclick="A.quit()" aria-label="Beenden">✕</button><div class="progress"><i style="width:${Math.round(100*done/tot)}%"></i></div><span class="small muted">${done}/${tot}</span></div>
+  <div class="flash"><div class="meta"><span>${esc(deck?deck.name:'')}${c.type==='zh'?' · '+DIRS[dir]:''}</span><span>${it.retry?'Wiederholung':p?'Box '+p.box:'Neu'}${sess.mode==='all'?' · ohne Wertung':''}</span></div>`;
+  h+=cardHTML(c,dir,sess.revealed);
+  h+='</div>';
+  app.innerHTML=h;
+  let g=$('.grades');if(!g){g=document.createElement('div');g.className='grades';document.body.appendChild(g)}
+  if(!sess.revealed)g.innerHTML=`<div class="in"><button class="primary" onclick="A.reveal()">Aufdecken <small>Leertaste</small></button></div>`;
+  else{const nb=p?Math.min(5,p.box+1):1;
+    g.innerHTML=`<div class="in"><button class="g0" onclick="A.grade(0)">Nicht gewusst<small>→ Box 1 · 1</small></button><button class="g1" onclick="A.grade(1)">Unsicher<small>Box bleibt · 2</small></button><button class="g2" onclick="A.grade(2)">Gewusst<small>${it.retry||sess.mode==='all'?'':'→ Box '+nb+' · '}3</small></button></div>`}
+  // Eingaben wiederherstellen
+  for(const [k,v] of Object.entries(sess.inputs)){const el=document.getElementById(k);if(el)el.value=v}
+  if(!sess.revealed){const f=$('.flash input, .flash textarea');if(f&&matchMedia('(pointer:fine)').matches)f.focus({preventScroll:true})}
+  // Autoplay
+  if(c.type==='zh'&&S.settings.autoplay){
+    if(!sess.revealed&&dir==='au'&&!it._played){it._played=true;speak(c.hanzi)}
+    if(sess.revealed&&dir!=='au'&&!it._played2){it._played2=true;speak(c.hanzi)}
+  }
+}
+function recallBox(id,ph){return `<input class="recall" id="${id}" placeholder="${ph}" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="sess.inputs[this.id]=this.value">`}
+function mineHTML(id){const v=(sess.inputs[id]||'').trim();return v?`<div class="mine">Deine Antwort: ${esc(v)}</div>`:''}
+function examplesHTML(c){
+  if(!c.examples||!c.examples.length)return '';
+  return `<ul class="examples">${c.examples.map((e,i)=>`<li><div class="spread"><span class="ezh">${hanziHTML(e.zh,e.py,true)}</span><button class="speak ghost" onclick="A.speakEx(${i})" aria-label="Vorlesen">🔊</button></div>${e.py?`<div class="epy">${pinyinHTML(e.py)}</div>`:''}${e.de?`<div class="ede">${esc(e.de)}</div>`:''}</li>`).join('')}</ul>`;
+}
+function cardHTML(c,dir,rev){
+  let q='',a='';
+  if(c.type==='zh'){
+    const full=`<div class="hanzi">${hanziHTML(c.hanzi,c.pinyin,true)}</div><div class="pinyin">${pinyinHTML(c.pinyin)}</div>
+      <div class="row" style="justify-content:center"><button class="speak" onclick="A.speakCard()">🔊 Anhören</button></div>`;
+    if(dir==='hz'){q=`<div class="hanzi">${esc(c.hanzi)}</div>`+(rev?'':recallBox('r1','Pinyin und Bedeutung …'));
+      a=`<div class="pinyin">${pinyinHTML(c.pinyin)}</div><div class="hanzi mid">${hanziHTML(c.hanzi,c.pinyin,true)}</div><div class="meaning">${esc(c.meaning)}</div><div class="row" style="justify-content:center"><button class="speak" onclick="A.speakCard()">🔊 Anhören</button></div>`}
+    else if(dir==='de'){q=`<div class="meaning">${esc(c.meaning)}</div>`+(rev?'':recallBox('r1','Hanzi oder Pinyin …'));a=full}
+    else{q=`<button class="bigspeak" onclick="A.speakCard()" aria-label="Nochmal anhören">🔊</button><div class="small muted">Was hörst du?</div>`+(rev?'':recallBox('r1','Bedeutung …'));
+      a=full+`<div class="meaning">${esc(c.meaning)}</div>`}
+    if(rev)a=mineHTML('r1')+a+(dir==='de'?`<div class="meaning" style="display:none"></div>`:'')+examplesHTML(c)+(c.note?`<div class="note">${esc(c.note)}</div>`:'');
+  }else if(c.type==='basic'){
+    const [f,b]=dir==='r'?[c.back,c.front]:[c.front,c.back];
+    q=`<div class="qtext rich">${md(f)}</div>`+(rev?'':`<textarea class="recall" id="r1" placeholder="Antwort aus dem Gedächtnis (optional) …" oninput="sess.inputs[this.id]=this.value"></textarea>`);
+    if(rev)a=mineHTML('r1')+`<div class="rich">${md(b)}</div>`+(c.note?`<div class="note">${esc(c.note)}</div>`:'');
+  }else if(c.type==='cloze'){
+    const n=+dir.slice(1);
+    q=`<div class="qtext rich">${clozeHTML(c.text,n,rev)}</div>`+(rev?'':recallBox('r1','Lücke ergänzen (optional) …'));
+    if(rev)a=mineHTML('r1')+(c.note?`<div class="note">${esc(c.note)}</div>`:'');
+    if(rev&&!a)a=' ';
+  }else if(c.type==='table'){
+    const rows=c.rows||[];const kc=Math.max(1,c.keyCols||1);const head=rows[0]||[];const body=rows.slice(1);
+    q=`<div class="qtext"><b>${esc(c.title)}</b></div><div class="small muted">${rev?'Vergleiche mit deinen Einträgen':'Ergänze die Tabelle aus dem Gedächtnis'}</div>
+    <div class="tablewrap"><table class="cls"><thead><tr>${head.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>
+    ${body.map((r,ri)=>`<tr>${head.map((_,ci)=>{const v=r[ci]??'';if(ci<kc)return `<td class="key">${esc(v)}</td>`;const id=`t${ri}_${ci}`;
+      return rev?`<td>${md(v)}${(sess.inputs[id]||'').trim()?`<span class="yours">Du: ${esc(sess.inputs[id])}</span>`:''}</td>`:`<td><input id="${id}" autocomplete="off" oninput="sess.inputs[this.id]=this.value" placeholder="?"></td>`}).join('')}</tr>`).join('')}
+    </tbody></table></div>`;
+    if(rev&&c.note)a=`<div class="note">${esc(c.note)}</div>`;
+  }
+  return `<div class="q">${q}</div>`+(rev&&a.trim()?`<div class="answer">${a}</div>`:'');
+}
+function gradeItem(g){
+  const it=curItem();if(!it||!sess.revealed)return;
+  const t=today();const L=S.log[t]||(S.log[t]={rev:0,ok:0,new:{}});
+  if(!it.retry){
+    L.rev++;if(g>0)L.ok++;g>0?sess.right++:sess.wrong++;
+    if(sess.mode!=='all'){
+      const old=S.progress[it.key];const p=old?{...old}:{box:0,ok:0,bad:0,seen:0};
+      if(!old)L.new[sess.r]=(L.new[sess.r]||0)+1;
+      p.seen++;p.last=Date.now();
+      if(g===0){p.box=1;p.bad++}else if(g===1){p.box=Math.max(1,p.box)}else{p.box=Math.min(5,p.box+1);p.ok++}
+      p.due=t+INTERVALS[p.box];S.progress[it.key]=p;
+    }
+  }
+  if(g===0&&it.retry<3){const q=sess.queue;const at=Math.min(q.length,sess.pos+4+Math.floor(Math.random()*4));q.splice(at,0,{key:it.key,retry:it.retry+1,id:uid()})}
+  save();sess.pos++;if(sess.pos>=sess.queue.length)scheduleSync(500);sess.revealed=false;sess.inputs={};speechSynthesis?.cancel?.();render();window.scrollTo(0,0);
+}
+document.addEventListener('keydown',e=>{
+  if(view!=='study'||!sess||!curItem()||$('.modal'))return;
+  const typing=/INPUT|TEXTAREA/.test(document.activeElement?.tagName);
+  if(!sess.revealed){if(e.key==='Enter'&&!(typing&&document.activeElement.tagName==='TEXTAREA'&&!e.ctrlKey)||(e.key===' '&&!typing)){e.preventDefault();A.reveal()}return}
+  if(typing)return;
+  if(e.key==='1')A.grade(0);else if(e.key==='2')A.grade(1);else if(e.key==='3'||e.key===' '||e.key==='Enter'){e.preventDefault();A.grade(2)}
+});
+
+/* ========== Ansicht: Stapel ========== */
+function renderDecks(app){
+  let h='<h1>Stapel</h1>';
+  for(const r of Object.keys(RUBRICS)){
+    const ds=decksOf(r);
+    h+=`<div class="panel rubric ${r}"><div class="spread"><h2 style="margin:0">${RUBRICS[r].icon} ${RUBRICS[r].name}</h2><button onclick="A.newDeck('${r}')">+ Stapel</button></div>
+    <ul class="decklist">${ds.map(d=>{const n=S.cards.filter(c=>c.deck===d.id).length;const dc=counts(r,[d.id]);
+      return `<li class="clickable" onclick="go('deck','${d.id}')"><span class="grow">${esc(d.name)}</span><span class="badge">${n} Karten</span>${dc.due?`<span class="badge due">${dc.due} fällig</span>`:''}<span class="muted">›</span></li>`}).join('')||'<li class="muted small">Noch keine Stapel</li>'}</ul></div>`;
+  }
+  app.innerHTML=h;
+}
+function renderDeck(app){
+  const d=deckById(param);if(!d){go('decks',null,false);return}
+  const cards=S.cards.filter(c=>c.deck===d.id);const dc=counts(d.rubric,[d.id]);
+  app.innerHTML=`<div class="row"><button class="ghost" onclick="go('decks')">‹ Stapel</button></div>
+  <div class="spread"><h1 style="margin:0">${esc(d.name)}</h1><span class="badge">${RUBRICS[d.rubric].name}</span></div>
+  <p class="small muted">${cards.length} Karten · ${dc.due} fällig · ${dc.nw} neu</p>
+  <div class="row" style="margin-bottom:14px"><button class="primary" onclick="A.newCard('${d.id}')">+ Karte</button><button onclick="A.learnDeck('${d.id}')">Nur diesen Stapel lernen</button><button onclick="A.renameDeck('${d.id}')">Umbenennen</button><button class="danger" onclick="A.delDeck('${d.id}')">Löschen</button></div>
+  <div class="panel"><input id="q" type="search" placeholder="Suchen …" oninput="A.filter()"><ul class="cardlist" id="cl"></ul></div>`;
+  A.filter();
+}
+function minBox(c){const ks=itemsOf(c);const bs=ks.map(k=>S.progress[k]?S.progress[k].box:0);return bs.length?Math.min(...bs):0}
+
+/* ========== Ansicht: Karte bearbeiten ========== */
+function blankCard(deck,type){return {_new:true,deck:deck.id,type:type||(deck.rubric==='zh'?'zh':'basic'),hanzi:'',pinyin:'',meaning:'',examples:[{zh:'',py:'',de:''}],note:'',front:'',back:'',reverse:false,text:'',title:'',rows:[['Grad','Beschreibung']],keyCols:1}}
+function renderEdit(app){
+  if(!draft){go('decks',null,false);return}
+  const d=draft;const deck=deckById(d.deck);const rub=deck.rubric;
+  const types=rub==='zh'?['zh','basic','cloze']:['basic','cloze','table'];
+  let h=`<div class="row"><button class="ghost" onclick="history.back()">‹ Zurück</button></div><h1>${d._new?'Neue Karte':'Karte bearbeiten'}</h1><div class="panel">
+  <div class="row"><label class="grow">Stapel<select id="f-deck">${decksOf(rub).map(x=>`<option value="${x.id}" ${x.id===d.deck?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+  <label class="grow">Kartentyp<select id="f-type" onchange="A.changeType(this.value)">${types.map(t=>`<option value="${t}" ${t===d.type?'selected':''}>${TYPES[t]}</option>`).join('')}</select></label></div>`;
+  if(d.type==='zh'){
+    h+=`<label>Hanzi<input id="f-hanzi" value="${esc(d.hanzi)}" lang="zh" style="font-size:1.6rem"></label>
+    <label>Pinyin <span class="small">(Tonzeichen oder Zahlen, z. B. ni3 hao3)</span><input id="f-pinyin" value="${esc(d.pinyin)}" oninput="A.pyPrev()" autocapitalize="off" spellcheck="false"></label>
+    <div class="preview" id="py-prev"></div>
+    <label>Deutsche Bedeutung<input id="f-meaning" value="${esc(d.meaning)}"></label>
+    <h3>Beispielsätze</h3>
+    ${d.examples.map((e,i)=>`<div class="exgroup"><label>Satz (Hanzi)<input id="ex-zh-${i}" value="${esc(e.zh)}" lang="zh"></label><label>Pinyin<input id="ex-py-${i}" value="${esc(e.py)}" autocapitalize="off" spellcheck="false"></label><label>Deutsch<input id="ex-de-${i}" value="${esc(e.de)}"></label><button class="ghost danger small" onclick="A.delEx(${i})">Satz entfernen</button></div>`).join('')}
+    <button onclick="A.addEx()" style="margin-bottom:12px">+ Beispielsatz</button>
+    <label>Notiz (optional)<textarea id="f-note">${esc(d.note)}</textarea></label>`;
+  }else if(d.type==='basic'){
+    h+=`<label>Vorderseite (Frage, Begriff)<textarea id="f-front">${esc(d.front)}</textarea></label>
+    <label>Rückseite (Antwort, Definition)<textarea id="f-back" style="min-height:140px">${esc(d.back)}</textarea></label>
+    <label class="check"><input type="checkbox" id="f-reverse" ${d.reverse?'checked':''}> Auch umgekehrt abfragen</label>
+    <label>Zusatzinfo (optional)<textarea id="f-note">${esc(d.note)}</textarea></label>
+    <p class="small muted">Formatierung: **fett**, *kursiv*, Zeilen mit „- “ werden zur Liste.</p>`;
+  }else if(d.type==='cloze'){
+    h+=`<label>Text mit Lücken<textarea id="f-text" style="min-height:140px">${esc(d.text)}</textarea></label>
+    <div class="row" style="margin:-4px 0 12px"><button onclick="A.makeCloze(false)">Markierung → neue Lücke</button><button onclick="A.makeCloze(true)">→ gleiche Lücke wie zuletzt</button></div>
+    <p class="small muted">Syntax: {{c1::Antwort}} oder mit Hinweis {{c1::Antwort::Hinweis}}. Jede Nummer wird eine eigene Abfrage.</p>
+    <label>Zusatzinfo (optional)<textarea id="f-note">${esc(d.note)}</textarea></label>`;
+  }else if(d.type==='table'){
+    h+=`<label>Titel (z. B. Hunt &amp; Hess)<input id="f-title" value="${esc(d.title)}"></label>
+    <label>Tabelle: eine Zeile pro Reihe, Spalten mit | trennen. Erste Zeile = Überschrift.<textarea id="f-rows" style="min-height:180px;font-family:ui-monospace,Menlo,monospace;font-size:.9rem" oninput="A.tblPrev()">${esc((d.rows||[]).map(r=>r.join(' | ')).join('\n'))}</textarea></label>
+    <label>Sichtbare Spalten links (werden vorgegeben, der Rest wird abgefragt)<input id="f-keycols" type="number" min="1" max="5" value="${d.keyCols||1}" oninput="A.tblPrev()"></label>
+    <div id="tbl-prev" class="tablewrap" style="margin-bottom:12px"></div>
+    <label>Zusatzinfo (optional)<textarea id="f-note">${esc(d.note)}</textarea></label>`;
+  }
+  h+=`<div class="row"><button class="primary" onclick="A.saveCard(false)">Speichern</button>${d._new?`<button onclick="A.saveCard(true)">Speichern &amp; nächste</button>`:''}${d._new?'':`<button class="danger" onclick="A.delCard()">Löschen</button>`}</div></div>`;
+  app.innerHTML=h;
+  if(d.type==='zh')A.pyPrev();if(d.type==='table')A.tblPrev();
+}
+const val=id=>{const e=document.getElementById(id);return e?e.value:undefined};
+function collect(){
+  const d=draft;d.deck=val('f-deck')||d.deck;
+  if(d.type==='zh'){d.hanzi=val('f-hanzi').trim();d.pinyin=val('f-pinyin').trim();d.meaning=val('f-meaning').trim();
+    d.examples=d.examples.map((_,i)=>({zh:val('ex-zh-'+i).trim(),py:val('ex-py-'+i).trim(),de:val('ex-de-'+i).trim()}));d.note=val('f-note')}
+  else if(d.type==='basic'){d.front=val('f-front');d.back=val('f-back');d.reverse=$('#f-reverse').checked;d.note=val('f-note')}
+  else if(d.type==='cloze'){d.text=val('f-text');d.note=val('f-note')}
+  else if(d.type==='table'){d.title=val('f-title').trim();d.rows=parseRows(val('f-rows'));d.keyCols=Math.max(1,+val('f-keycols')||1);d.note=val('f-note')}
+}
+function parseRows(t){return String(t||'').split(/\r?\n|\s\|\|\s/).map(l=>l.trim()).filter(Boolean).map(l=>l.replace(/^\||\|$/g,'').split('|').map(x=>x.trim())).filter(r=>!r.every(x=>/^:?-{2,}:?$/.test(x)))}
+function cleanCard(d){
+  const base={type:d.type,note:(d.note||'').trim()};
+  if(d.type==='zh')return {...base,hanzi:d.hanzi,pinyin:normalizePinyin(d.pinyin),meaning:d.meaning,examples:(d.examples||[]).filter(e=>e.zh||e.de).map(e=>({zh:e.zh||'',py:normalizePinyin(e.py||''),de:e.de||''}))};
+  if(d.type==='basic')return {...base,front:(d.front||'').trim(),back:(d.back||'').trim(),reverse:!!d.reverse};
+  if(d.type==='cloze')return {...base,text:(d.text||'').trim()};
+  if(d.type==='table')return {...base,title:d.title,rows:d.rows,keyCols:d.keyCols||1};
+}
+function validate(c){
+  if(c.type==='zh'&&(!c.hanzi||!c.meaning))return 'Bitte Hanzi und Bedeutung ausfüllen.';
+  if(c.type==='basic'&&(!c.front||!c.back))return 'Bitte Vorder- und Rückseite ausfüllen.';
+  if(c.type==='cloze'&&!clozeNums(c.text).length)return 'Der Text braucht mindestens eine Lücke {{c1::…}}.';
+  if(c.type==='table'&&(!c.title||(c.rows||[]).length<2))return 'Bitte Titel und mindestens eine Überschrift- und eine Datenzeile angeben.';
+}
+
+/* ========== Ansicht: Statistik ========== */
+let statR='zh';
+function renderStats(app){
+  const r=statR;const t=today();const items=itemsOfRubric(r);
+  const boxes=[0,0,0,0,0,0];let due=0;for(const it of items){const p=S.progress[it.key];boxes[p?p.box:0]++;if(p&&p.due<=t)due++}
+  const fc=[];for(let i=0;i<7;i++)fc.push(items.filter(it=>{const p=S.progress[it.key];return p&&(i===0?p.due<=t:p.due===t+i)}).length);
+  const fmax=Math.max(1,...fc);const max=Math.max(1,...boxes);
+  const L=S.log[t]||{rev:0,ok:0};
+  let week=0,wok=0;for(let i=0;i<7;i++){const l=S.log[t-i];if(l){week+=l.rev;wok+=l.ok}}
+  let streak=0;for(let i=(S.log[t]&&S.log[t].rev)?0:1;;i++){const l=S.log[t-i];if(l&&l.rev)streak++;else break}
+  const weak=items.map(it=>({k:it.key,p:S.progress[it.key],c:it.card})).filter(x=>x.p&&x.p.bad>0).sort((a,b)=>a.p.box-b.p.box||errRate(b.k)-errRate(a.k)).slice(0,20);
+  const wd=['So','Mo','Di','Mi','Do','Fr','Sa'];
+  app.innerHTML=`<h1>Statistik</h1>
+  <div class="seg" style="margin-bottom:14px">${Object.keys(RUBRICS).map(x=>`<button class="${x===r?'on':''}" onclick="statR='${x}';render()">${RUBRICS[x].icon} ${RUBRICS[x].name}</button>`).join('')}</div>
+  <div class="panel"><div class="stat3"><div><b>${due}</b><span class="small muted">jetzt fällig</span></div><div><b>${L.rev}</b><span class="small muted">heute gelernt</span></div><div><b>${week?Math.round(100*wok/week)+'%':'–'}</b><span class="small muted">richtig (7 Tage)</span></div><div><b>${streak}</b><span class="small muted">Tage in Folge*</span></div></div>
+  <p class="small muted" style="margin:0">* über beide Rubriken</p></div>
+  <div class="panel"><h3>Leitner-Boxen</h3><div class="bars">${boxes.map((n,i)=>`<div class="bar"><span>${i?'Box '+i+' <small>('+INTERVALS[i]+' T)</small>':'Neu'}</span><span class="track"><i style="width:${100*n/max}%;${i===0?'background:var(--mid)':''}"></i></span><span>${n}</span></div>`).join('')}</div></div>
+  <div class="panel"><h3>Fällig in den nächsten 7 Tagen</h3><div class="cols7">${fc.map((n,i)=>`<div><b>${n}</b><i style="height:${80*n/fmax}%"></i>${i===0?'heute':wd[new Date(Date.now()+i*864e5).getDay()]}</div>`).join('')}</div></div>
+  <div class="panel"><div class="spread"><h3 style="margin:0">Schwachstellen</h3>${weak.length?`<button onclick="S.settings.mode['${r}']='weak';save();A.start('${r}')">Gezielt üben</button>`:''}</div>
+  ${weak.length?`<ul class="cardlist">${weak.map(x=>`<li onclick="A.editCard('${x.c.id}')"><span class="grow">${esc(itemLabel(x.k))}</span><span class="badge">${x.p.bad}× falsch / ${x.p.seen}</span><span class="badge">Box ${x.p.box}</span></li>`).join('')}</ul>`:'<p class="muted small">Noch keine Fehler erfasst.</p>'}</div>
+  <div class="panel"><h3>Nach Stapel</h3><ul class="decklist">${decksOf(r).map(d=>{const c=counts(r,[d.id]);const its=itemsOfRubric(r,[d.id]);const seen=its.filter(i=>S.progress[i.key]);const ok=seen.reduce((a,i)=>a+S.progress[i.key].ok,0),all=seen.reduce((a,i)=>a+S.progress[i.key].seen,0);
+    const mature=its.filter(i=>(S.progress[i.key]||{}).box>=4).length;
+    return `<li><span class="grow">${esc(d.name)}</span><span class="badge due">${c.due} fällig</span><span class="badge">${all?Math.round(100*ok/all)+'% richtig':'–'}</span><span class="badge">${its.length?Math.round(100*mature/its.length):0}% sicher</span></li>`}).join('')||'<li class="muted small">Keine Stapel</li>'}</ul>
+  <p class="small muted">„Sicher“ = Box 4 oder 5.</p></div>`;
+}
+
+/* ========== Ansicht: Daten & Einstellungen ========== */
+function renderData(app){
+  const st=S.settings;const canShare=!!(navigator.canShare&&window.File);
+  const hasVoice='speechSynthesis' in window;
+  app.innerHTML=`<h1>Daten</h1>
+  <div class="panel"><h2>Automatischer Sync</h2>
+  ${syncCfg().token?`<p>✓ Verbunden. Karten und Fortschritt werden automatisch in einem privaten Gist in deinem GitHub-Konto abgeglichen (beim Öffnen und kurz nach dem Lernen).</p>
+  <p class="small muted">${syncCfg().last?'Zuletzt synchronisiert: '+new Date(syncCfg().last).toLocaleString('de-DE'):'Noch nicht synchronisiert.'}${syncCfg().error?' · <span style="color:var(--bad)">Fehler: '+esc(syncCfg().error)+'</span>':''}</p>
+  <div class="row"><button class="primary" onclick="syncNow(false)">Jetzt synchronisieren</button><button class="danger" onclick="A.syncOff()">Trennen</button></div>`
+  :`<p>Verbinde die App einmal pro Gerät mit deinem GitHub-Konto. Danach gleichen Handy und PC sich von selbst ab.</p>
+  <ol class="small"><li>Auf GitHub einen <a href="https://github.com/settings/tokens/new?scopes=gist&description=Karteikarten-Sync" target="_blank" rel="noopener">Token mit Recht „gist“ erstellen</a> (Ablauf: „No expiration“ oder 1 Jahr).</li><li>Token hier einfügen. Auf dem zweiten Gerät denselben Token verwenden.</li></ol>
+  <label>GitHub-Token<input id="sync-tok" type="password" placeholder="ghp_…" autocomplete="off"></label>
+  <button class="primary" onclick="A.syncOn()">Verbinden &amp; synchronisieren</button>`}
+  </div>
+  <div class="panel"><h2>Backup-Datei</h2>
+  <p>Zusätzlich oder ohne Sync: Exportiere auf einem Gerät ein Backup und importiere es auf dem anderen. Karten und Lernfortschritt werden <b>zusammengeführt</b>, es geht nichts verloren: pro Karte gilt der jeweils neuere Stand.</p>
+  <div class="row"><button class="primary" onclick="A.exportBackup(false)">Backup herunterladen</button>${canShare?'<button onclick="A.exportBackup(true)">Backup teilen …</button>':''}<button onclick="$('#file').click()">Backup / Datei importieren</button></div>
+  <p class="small muted">${st.lastExport?'Letzter Export: '+new Date(st.lastExport).toLocaleString('de-DE'):'Noch kein Export.'}</p></div>
+  <div class="panel"><h2>Karten importieren</h2>
+  <p class="small">CSV (Excel, ; oder , getrennt) oder JSON. Spalte <code>stapel</code> bestimmt den Stapel. Vorhandene Karten mit gleichem Inhalt werden aktualisiert statt doppelt angelegt.</p>
+  <div class="row"><label class="grow">Rubrik (falls nicht erkennbar)<select id="imp-r">${Object.keys(RUBRICS).map(r=>`<option value="${r}">${RUBRICS[r].name}</option>`).join('')}</select></label><label class="grow">Stapel (falls Spalte fehlt)<input id="imp-d" placeholder="z. B. HSK 1"></label></div>
+  <input type="file" id="file" accept=".json,.csv,.tsv,.txt,application/json,text/csv" style="display:none" onchange="A.importFile(this)">
+  <div class="row" style="margin-bottom:12px"><button onclick="$('#file').click()">Datei wählen …</button></div>
+  <details><summary>Oder Text einfügen</summary><textarea id="imp-t" placeholder="CSV- oder JSON-Text hier einfügen"></textarea><div class="row" style="margin-top:8px"><button onclick="A.importPaste()">Importieren</button></div></details>
+  <details><summary>Formate &amp; Beispiele</summary>
+  <p class="small"><b>Chinesisch (CSV):</b></p><pre>stapel;hanzi;pinyin;deutsch;beispiel1_zh;beispiel1_pinyin;beispiel1_de;notiz
+HSK 1;你好;nǐ hǎo;hallo;你好，老师！;Nǐ hǎo, lǎoshī!;Hallo, Lehrer!;</pre>
+  <p class="small">Pinyin auch mit Zahlen (ni3 hao3). Weitere Sätze: beispiel2_zh, beispiel2_pinyin, …</p>
+  <p class="small"><b>Neurochirurgie (CSV):</b> typ = definition, lueckentext oder tabelle</p><pre>stapel;typ;vorderseite;rueckseite;notiz
+Vaskulär;definition;Monro-Kellie-Doktrin;Schädelvolumen ist konstant …;
+Vaskulär;lueckentext;Cushing-Trias: {{c1::Hypertonie}}, {{c2::Bradykardie}} …;;
+Vaskulär;tabelle;Hunt &amp; Hess;Grad | Klinik || I | asymptomatisch … || II | …;</pre>
+  <p class="small">Bei Tabellen: Reihen mit „||“ oder Zeilenumbruch trennen, Spalten mit „|“, erste Reihe = Überschrift.</p>
+  <button onclick="A.downloadTemplate()">Vorlagen herunterladen</button></details></div>
+  <div class="panel"><h2>Einstellungen</h2>
+  <div class="row"><label class="grow">Neue Karten pro Tag und Rubrik<input type="number" min="0" max="500" value="${st.newPerDay}" onchange="A.set('newPerDay',+this.value)"></label><label class="grow">Max. Karten pro Sitzung<input type="number" min="5" max="1000" value="${st.sessionSize}" onchange="A.set('sessionSize',+this.value)"></label></div>
+  <p style="margin:0 0 6px"><b>Chinesisch abfragen als</b></p>
+  ${Object.entries(DIRS).map(([k,l])=>`<label class="check"><input type="checkbox" ${st.dirs[k]?'checked':''} onchange="A.setDir('${k}',this.checked)"> ${l}</label>`).join('')}
+  <label class="check"><input type="checkbox" ${st.autoplay?'checked':''} onchange="A.set('autoplay',this.checked)"> Aussprache automatisch abspielen</label>
+  <label>Sprechtempo: <span id="rate-v">${st.rate}</span><input type="range" min="0.5" max="1.2" step="0.05" value="${st.rate}" oninput="$('#rate-v').textContent=this.value" onchange="A.set('rate',+this.value)"></label>
+  <div class="row" style="margin-bottom:12px"><button onclick="speak('你好，我在学习中文。')">🔊 Stimme testen</button><span class="small muted">${hasVoice?(zhVoice?'Stimme: '+esc(zhVoice.name):'Keine chinesische Stimme gefunden. Am Handy ggf. in den Systemeinstellungen (Sprachausgabe) Chinesisch installieren.'):'Sprachausgabe nicht verfügbar'}</span></div>
+  <label>Darstellung<select onchange="A.set('theme',this.value)">${[['auto','Automatisch'],['light','Hell'],['dark','Dunkel']].map(([v,l])=>`<option value="${v}" ${st.theme===v?'selected':''}>${l}</option>`).join('')}</select></label>
+  </div>
+  <div class="panel"><h2>Zurücksetzen</h2><div class="row"><button onclick="A.loadSamples()">Beispielkarten hinzufügen</button><button class="danger" onclick="A.resetProgress()">Lernfortschritt zurücksetzen</button><button class="danger" onclick="A.wipe()">Alles löschen</button></div>
+  <p class="small muted">${S.cards.length} Karten · ${Object.keys(S.progress).length} Lerneinträge · ${syncCfg().token?'Wird über GitHub synchronisiert.':'Daten liegen nur lokal in diesem Browser.'}</p></div>`;
+}
+
+/* ========== Import / Export ========== */
+function parseCSV(text){
+  const first=text.split(/\r?\n/)[0]||'';const cnt=ch=>first.split(ch).length;
+  const del=[';','\t',','].sort((a,b)=>cnt(b)-cnt(a))[0];
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=ch}
+    else if(ch==='"'&&f==='')q=true;
+    else if(ch===del){row.push(f);f=''}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}
+    else f+=ch}
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  return rows;
+}
+const normHead=h=>String(h).trim().toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[\s-]+/g,'_');
+const pick=(o,...ks)=>{for(const k of ks)if(o[k]!==undefined&&o[k]!==null&&String(o[k]).trim()!=='')return o[k];return ''};
+function normRubric(x,fallback){x=String(x||'').toLowerCase();if(/chin|zh|中/.test(x))return 'zh';if(/neuro|nc|chir/.test(x))return 'neuro';return fallback}
+function normType(t,o){
+  t=normHead(t||'');
+  if(/vokabel|^zh$|wort|hanzi/.test(t))return 'zh';
+  if(/luecke|cloze|lueckentext/.test(t))return 'cloze';
+  if(/tabelle|table|klassifikation|grad/.test(t))return 'table';
+  if(t)return 'basic';
+  if(o.hanzi)return 'zh';if(o.rows||o.zeilen)return 'table';if(/\{\{c\d+::/.test(o.text||o.lueckentext||o.vorderseite||o.front||''))return 'cloze';return 'basic';
+}
+function normalizeCard(o){
+  const n={};for(const [k,v] of Object.entries(o))n[normHead(k)]=v;
+  const type=normType(pick(n,'type','typ'),n);const note=String(pick(n,'note','notiz','zusatz','extra')||'');
+  if(type==='zh'){
+    let ex=n.examples||n.beispiele||[];if(!Array.isArray(ex))ex=[];
+    ex=ex.map(e=>{const m={};for(const [k,v] of Object.entries(e||{}))m[normHead(k)]=v;return {zh:String(pick(m,'zh','satz','hanzi','chinesisch')),py:String(pick(m,'py','pinyin')),de:String(pick(m,'de','deutsch','uebersetzung'))}});
+    for(let i=1;i<=9;i++){const z=pick(n,`beispiel${i}_zh`,`beispiel${i}`,`beispiel${i}_hanzi`);if(z||n[`beispiel${i}_de`])ex.push({zh:String(z||''),py:String(pick(n,`beispiel${i}_pinyin`,`beispiel${i}_py`)),de:String(pick(n,`beispiel${i}_de`,`beispiel${i}_deutsch`))})}
+    return {type,hanzi:String(pick(n,'hanzi','zeichen','chinesisch')).trim(),pinyin:normalizePinyin(String(pick(n,'pinyin','py')).trim()),meaning:String(pick(n,'meaning','deutsch','bedeutung','de')).trim(),examples:ex.filter(e=>e.zh||e.de).map(e=>({...e,py:normalizePinyin(e.py)})),note};
+  }
+  if(type==='cloze')return {type,text:String(pick(n,'text','lueckentext','vorderseite','front','frage')).trim(),note:note||String(pick(n,'rueckseite','back')||'')};
+  if(type==='table'){
+    let rows=n.rows||n.zeilen;
+    if(!Array.isArray(rows)){rows=parseRows(pick(n,'rueckseite','back','tabelle','antwort'));}
+    else if(n.columns||n.spalten)rows=[n.columns||n.spalten,...rows];
+    return {type,title:String(pick(n,'title','titel','vorderseite','front','name')).trim(),rows:rows.map(r=>r.map(x=>String(x??''))),keyCols:+pick(n,'keycols','sichtbar','sichtbare_spalten')||1,note};
+  }
+  return {type:'basic',front:String(pick(n,'front','vorderseite','frage','begriff')).trim(),back:String(pick(n,'back','rueckseite','antwort','definition')).trim(),reverse:/^(1|true|ja|x)$/i.test(String(pick(n,'reverse','umgekehrt'))),note};
+}
+function importContent(list,opts){
+  let added=0,upd=0,skip=0;
+  for(const {rubric,deck,card} of list){
+    const c=normalizeCard(card);const r=rubric||(c.type==='zh'?'zh':opts.rubric);
+    if(validate(c)){skip++;continue}
+    const d=ensureDeck(r==='zh'&&c.type==='table'?'zh':r,deck||opts.deck||'Import');
+    upsertCard(d,c)?added++:upd++;
+  }
+  save();return `${added} neu, ${upd} aktualisiert${skip?`, ${skip} übersprungen (unvollständig)`:''}`;
+}
+function importText(text,opts){
+  text=String(text).replace(/^﻿/,'');
+  if(/^\s*[\[{]/.test(text)){
+    const o=JSON.parse(text);
+    if(o&&o.app==='leitner-karten')return mergeBackup(o);
+    const decks=Array.isArray(o)?(o.length&&(o[0].cards||o[0].karten)?o:[{cards:o}]):(o.decks||o.stapel||[o]);
+    const list=[];
+    for(const d of decks){const r=normRubric(d.rubric||d.rubrik||o.rubric||o.rubrik,null);const name=d.name||d.stapel||d.deck||o.deck||o.stapel;
+      for(const c of d.cards||d.karten||[])list.push({rubric:normRubric(c.rubrik||c.rubric,r),deck:c.stapel||c.deck||name,card:c})}
+    return importContent(list,opts);
+  }
+  const rows=parseCSV(text).filter(r=>r.some(x=>x.trim()));if(rows.length<2)throw new Error('Keine Datenzeilen gefunden (erste Zeile = Spaltennamen).');
+  const head=rows.shift().map(normHead);
+  const list=rows.map(r=>{const o={};head.forEach((h,i)=>o[h]=r[i]??'');return {rubric:normRubric(o.rubrik||o.rubric,head.includes('hanzi')?'zh':null),deck:o.stapel||o.deck||'',card:o}});
+  return importContent(list,opts);
+}
+function mergeBackup(o){
+  const idMap={};let nc=0,uc=0;
+  for(const [id,t] of Object.entries(o.deleted||{}))S.deleted[id]=Math.max(S.deleted[id]||0,t);
+  for(const d of o.decks||[]){
+    if(S.deleted[d.id])continue;
+    let ex=deckById(d.id)||S.decks.find(x=>x.rubric===d.rubric&&x.name.toLowerCase()===d.name.toLowerCase());
+    if(!ex){ex={...d};S.decks.push(ex)}idMap[d.id]=ex.id;
+  }
+  for(const c of o.cards||[]){
+    if(S.deleted[c.id]&&S.deleted[c.id]>=(c.updated||0))continue;
+    const deck=idMap[c.deck]||c.deck;if(!deckById(deck))continue;
+    const ex=cardById(c.id);
+    if(!ex){S.cards.push({...c,deck});nc++}else if((c.updated||0)>(ex.updated||0)){Object.assign(ex,c,{deck});uc++}
+  }
+  S.cards=S.cards.filter(c=>!(S.deleted[c.id]&&S.deleted[c.id]>=(c.updated||0)));
+  S.decks=S.decks.filter(d=>!S.deleted[d.id]);
+  const live=new Set(S.cards.map(c=>c.id));
+  for(const [k,p] of Object.entries(o.progress||{})){const l=S.progress[k];if(live.has(k.split('|')[0])&&(!l||(p.last||0)>(l.last||0)))S.progress[k]=p}
+  for(const [day,l] of Object.entries(o.log||{})){const m=S.log[day]||{rev:0,ok:0,new:{}};m.rev=Math.max(m.rev||0,l.rev||0);m.ok=Math.max(m.ok||0,l.ok||0);m.new=m.new||{};for(const [r,n] of Object.entries(l.new||{}))m.new[r]=Math.max(m.new[r]||0,n);S.log[day]=m}
+  save();return `Backup zusammengeführt: ${nc} neue, ${uc} aktualisierte Karten`;
+}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+
+/* ========== Beispielkarten ========== */
+const SAMPLES={decks:[
+ {rubric:'zh',name:'Grundwortschatz',cards:[
+  {hanzi:'你好',pinyin:'nǐ hǎo',meaning:'hallo',examples:[{zh:'你好，我叫马丁。',py:'Nǐ hǎo, wǒ jiào Mǎdīng.',de:'Hallo, ich heiße Martin.'}]},
+  {hanzi:'谢谢',pinyin:'xièxie',meaning:'danke',examples:[{zh:'谢谢你的帮助。',py:'Xièxie nǐ de bāngzhù.',de:'Danke für deine Hilfe.'}]},
+  {hanzi:'学习',pinyin:'xuéxí',meaning:'lernen',examples:[{zh:'我每天学习中文。',py:'Wǒ měitiān xuéxí Zhōngwén.',de:'Ich lerne jeden Tag Chinesisch.'}]},
+  {hanzi:'朋友',pinyin:'péngyou',meaning:'Freund, Freundin',examples:[{zh:'他是我的好朋友。',py:'Tā shì wǒ de hǎo péngyou.',de:'Er ist mein guter Freund.'}]},
+ ]},
+ {rubric:'zh',name:'Alltag',cards:[
+  {hanzi:'喝',pinyin:'hē',meaning:'trinken',examples:[{zh:'你想喝茶吗？',py:'Nǐ xiǎng hē chá ma?',de:'Möchtest du Tee trinken?'}]},
+  {hanzi:'医生',pinyin:'yīshēng',meaning:'Arzt, Ärztin',examples:[{zh:'我的妈妈是医生。',py:'Wǒ de māma shì yīshēng.',de:'Meine Mutter ist Ärztin.'}]},
+  {hanzi:'今天',pinyin:'jīntiān',meaning:'heute',examples:[{zh:'今天天气很好。',py:'Jīntiān tiānqì hěn hǎo.',de:'Heute ist das Wetter sehr gut.'}]},
+ ]},
+ {rubric:'neuro',name:'Grundlagen',cards:[
+  {typ:'definition',vorderseite:'Monro-Kellie-Doktrin',rueckseite:'Bei geschlossenem Schädel ist die Summe aus **Hirngewebe, Blut und Liquor** konstant. Nimmt ein Volumen zu, müssen die anderen abnehmen, sonst steigt der intrakranielle Druck.'},
+  {typ:'lueckentext',text:'Die Cushing-Trias besteht aus {{c1::arterieller Hypertonie}}, {{c2::Bradykardie}} und {{c3::unregelmäßiger Atmung}}.'},
+  {typ:'lueckentext',text:'Der zerebrale Perfusionsdruck berechnet sich als {{c1::CPP = MAP − ICP::Formel}}.'},
+  {typ:'tabelle',titel:'Glasgow Coma Scale: motorische Antwort',zeilen:[['Punkte','Motorik'],['6','befolgt Aufforderungen'],['5','gezielte Abwehr auf Schmerz'],['4','ungezielte Wegziehbewegung'],['3','Beugesynergismen (Dekortikation)'],['2','Strecksynergismen (Dezerebration)'],['1','keine']]},
+ ]},
+ {rubric:'neuro',name:'Vaskulär',cards:[
+  {typ:'tabelle',titel:'Hunt & Hess (Subarachnoidalblutung)',zeilen:[['Grad','Klinik'],['I','asymptomatisch oder leichter Kopfschmerz, leichter Meningismus'],['II','mäßiger bis schwerer Kopfschmerz, Meningismus, kein fokales Defizit außer Hirnnervenparese'],['III','Somnolenz, Verwirrtheit oder leichtes fokales Defizit'],['IV','Sopor, mäßige bis schwere Hemiparese, evtl. frühe Dezerebration'],['V','tiefes Koma, Dezerebration, moribund']]},
+  {typ:'tabelle',titel:'Spetzler-Martin (AVM)',zeilen:[['Merkmal','Ausprägung','Punkte'],['Größe','< 3 cm','1'],['Größe','3–6 cm','2'],['Größe','> 6 cm','3'],['Eloquenz','nicht eloquent','0'],['Eloquenz','eloquent','1'],['Venöse Drainage','nur oberflächlich','0'],['Venöse Drainage','tief','1']],sichtbar:2,notiz:'Summe = Grad I–V'},
+  {typ:'tabelle',titel:'Modifizierte Fisher-Skala',zeilen:[['Grad','CT-Befund'],['0','keine SAB, keine IVB'],['1','dünne SAB, keine IVB'],['2','dünne SAB mit IVB'],['3','dicke SAB, keine IVB'],['4','dicke SAB mit IVB']]},
+ ]},
+]};
+
+/* ========== Aktionen ========== */
+const A={
+  start(r){startSession(r,S.settings.mode[r])},
+  setMode(r,m){S.settings.mode[r]=m;save();render()},
+  toggleSel(r,id,on){const all=decksOf(r).map(d=>d.id);let sel=S.settings.sel[r]&&S.settings.sel[r].length?S.settings.sel[r].filter(x=>all.includes(x)):all.slice();
+    sel=on?[...new Set([...sel,id])]:sel.filter(x=>x!==id);S.settings.sel[r]=sel.length===all.length?null:sel;if(!sel.length)S.settings.sel[r]=[];save();render();$(`.rubric.${r} details`)?.setAttribute('open','')},
+  selAll(r,on){S.settings.sel[r]=on?null:[];save();render();$(`.rubric.${r} details`)?.setAttribute('open','')},
+  learnDeck(id){const d=deckById(id);S.settings.sel[d.rubric]=[id];if(S.settings.mode[d.rubric]==='weak')S.settings.mode[d.rubric]='due';save();go('learn');toast('Nur „'+d.name+'“ ausgewählt. Unter „Stapel auswählen“ wieder alle aktivieren.',4000)},
+  reveal(){if(!sess)return;sess.revealed=true;render()},
+  grade(g){gradeItem(g)},
+  async quit(){if(sess&&sess.pos<sess.queue.length&&sess.pos>0&&!await ask('Sitzung beenden? Bisherige Antworten sind gespeichert.'))return;sess=null;$('.grades')?.remove();go('learn')},
+  speakCard(){const it=curItem();const c=it&&cardById(it.key.split('|')[0]);if(c)speak(c.hanzi)},
+  speakEx(i){const it=curItem();const c=it&&cardById(it.key.split('|')[0]);if(c&&c.examples[i])speak(c.examples[i].zh)},
+  async newDeck(r){const n=await ask(`Name des neuen Stapels in ${RUBRICS[r].name}:`,{input:true});if(!n||!n.trim())return;const d=ensureDeck(r,n);save();go('deck',d.id)},
+  async renameDeck(id){const d=deckById(id);const n=await ask('Neuer Name:',{input:true,value:d.name});if(!n||!n.trim())return;d.name=n.trim();d.updated=Date.now();save();render()},
+  async delDeck(id){const d=deckById(id);const n=S.cards.filter(c=>c.deck===id).length;if(!await ask(`Stapel „${d.name}“ mit ${n} Karten löschen?`,{ok:'Löschen',danger:true}))return;deleteDeck(id);save();go('decks')},
+  filter(){const q=(val('q')||'').toLowerCase();const cards=S.cards.filter(c=>c.deck===param&&(!q||JSON.stringify(c).toLowerCase().includes(q)));
+    $('#cl').innerHTML=cards.slice(0,500).map(c=>{const b=minBox(c);return `<li onclick="A.editCard('${c.id}')"><span class="badge">${TYPES[c.type].split(' ')[0]}</span><span class="grow">${esc(cardLabel(c))}</span><span class="badge ${b?'':'new'}">${b?'Box '+b:'neu'}</span></li>`}).join('')||'<li class="muted small">Keine Karten</li>'},
+  newCard(deckId,type){draft=blankCard(deckById(deckId),type);go('edit')},
+  editCard(id){const c=cardById(id);draft=JSON.parse(JSON.stringify({...blankCard(deckById(c.deck),c.type),...c,_new:false}));if(c.type==='zh'&&!draft.examples.length)draft.examples=[{zh:'',py:'',de:''}];go('edit')},
+  changeType(t){collect();draft.type=t;render()},
+  addEx(){collect();draft.examples.push({zh:'',py:'',de:''});render()},
+  delEx(i){collect();draft.examples.splice(i,1);render()},
+  pyPrev(){const p=val('f-pinyin'),h=val('f-hanzi');$('#py-prev').innerHTML=p?`<span class="hanzi" style="font-size:1.8rem">${hanziHTML(h,p,true)}</span> &nbsp; <span class="pinyin">${pinyinHTML(p)}</span>`:'<span class="small muted">Vorschau mit Tonfarben</span>'},
+  tblPrev(){const rows=parseRows(val('f-rows'));const kc=+val('f-keycols')||1;if(!rows.length){$('#tbl-prev').innerHTML='';return}
+    $('#tbl-prev').innerHTML=`<table class="cls"><thead><tr>${rows[0].map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${rows[0].map((_,i)=>i<kc?`<td class="key">${esc(r[i]||'')}</td>`:`<td class="muted">${esc(r[i]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table><p class="small muted">Fett = sichtbar, grau = wird abgefragt.</p>`},
+  makeCloze(same){const ta=$('#f-text');const s=ta.selectionStart,e=ta.selectionEnd;if(s===e)return toast('Erst ein Wort im Text markieren.');
+    const nums=clozeNums(ta.value);const n=same&&nums.length?Math.max(...nums):(nums.length?Math.max(...nums)+1:1);
+    ta.value=ta.value.slice(0,s)+`{{c${n}::${ta.value.slice(s,e)}}}`+ta.value.slice(e);ta.focus()},
+  async saveCard(next){collect();const c=cleanCard(draft);const err=validate(c);if(err)return toast(err);
+    const deck=draft.deck;
+    if(draft._new){
+      const dup=S.cards.find(x=>x.deck===deck&&x.type===c.type&&cardKey(x).trim()===cardKey(c).trim());
+      if(dup&&!await ask('Eine Karte mit gleichem Inhalt existiert schon in diesem Stapel. Trotzdem anlegen?'))return;
+      S.cards.push({...c,id:uid(),deck,created:Date.now(),updated:Date.now()});
+    }else{const ex=cardById(draft.id);Object.assign(ex,c,{deck,updated:Date.now()})}
+    save();toast('Gespeichert');
+    if(next){draft=blankCard(deckById(deck),draft.type);render();setTimeout(()=>$('#f-hanzi,#f-front,#f-text,#f-title')?.focus(),50)}
+    else history.back();
+  },
+  async delCard(){if(!await ask('Karte löschen?',{ok:'Ja',danger:true}))return;deleteCard(draft.id);save();history.back()},
+  set(k,v){S.settings[k]=v;save();if(k==='theme')applyTheme()},
+  async syncOn(){const t=(val('sync-tok')||'').trim();if(!t)return toast('Bitte Token einfügen');S.settings.sync={token:t};save();await syncNow(false);render()},
+  async syncOff(){if(!await ask('Sync auf diesem Gerät trennen? Die Daten bleiben lokal und im Gist erhalten.',{ok:'Ja',danger:true}))return;delete S.settings.sync;save();render()},
+  setDir(k,on){S.settings.dirs[k]=on;if(!Object.values(S.settings.dirs).some(Boolean)){S.settings.dirs.hz=true;toast('Mindestens eine Richtung muss aktiv sein.')}save();render()},
+  exportBackup(share){
+    const name=`karteikarten-backup-${new Date().toISOString().slice(0,10)}.json`;
+    S.settings.lastExport=Date.now();save();
+    const blob=new Blob([JSON.stringify(exportable())],{type:'application/json'});
+    if(share){const f=new File([blob],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'Karteikarten-Backup'}).catch(()=>{});render();return}}
+    download(blob,name);render();
+  },
+  async importFile(inp){const f=inp.files[0];inp.value='';if(!f)return;try{const msg=importText(await f.text(),{rubric:val('imp-r'),deck:(val('imp-d')||'').trim()||f.name.replace(/\.[^.]+$/,'')});toast(msg,5000);render()}catch(e){toast('Import fehlgeschlagen: '+e.message,6000)}},
+  importPaste(){try{const msg=importText(val('imp-t'),{rubric:val('imp-r'),deck:(val('imp-d')||'').trim()||'Import'});toast(msg,5000);render()}catch(e){toast('Import fehlgeschlagen: '+e.message,6000)}},
+  downloadTemplate(){
+    download(new Blob(['﻿stapel;hanzi;pinyin;deutsch;beispiel1_zh;beispiel1_pinyin;beispiel1_de;beispiel2_zh;beispiel2_pinyin;beispiel2_de;notiz\nHSK 1;你好;ni3 hao3;hallo;你好，老师！;ni3 hao3, lao3shi1!;Hallo, Lehrer!;;;;\n'],{type:'text/csv'}),'vorlage-chinesisch.csv');
+    setTimeout(()=>download(new Blob(['﻿stapel;typ;vorderseite;rueckseite;notiz\nGrundlagen;definition;Monro-Kellie-Doktrin;Summe aus Hirn, Blut und Liquor ist bei geschlossenem Schädel konstant.;\nGrundlagen;lueckentext;CPP = {{c1::MAP}} − {{c2::ICP}};;\nVaskulär;tabelle;Modifizierte Fisher-Skala;Grad | CT-Befund || 0 | keine SAB, keine IVB || 1 | dünne SAB, keine IVB;\n'],{type:'text/csv'}),'vorlage-neurochirurgie.csv'),400);
+  },
+  loadSamples(){toast(importText(JSON.stringify(SAMPLES),{rubric:'neuro',deck:'Beispiele'}));render()},
+  async resetProgress(){if(!await ask('Gesamten Lernfortschritt zurücksetzen? Karten bleiben erhalten.',{ok:'Ja',danger:true}))return;S.progress={};S.log={};save();render()},
+  async wipe(){if(!await ask('Wirklich ALLE Karten und den Fortschritt auf diesem Gerät löschen?',{ok:'Ja',danger:true}))return;const st=S.settings;S=defaults();S.settings=st;save();render()},
+};
+
+/* ========== Start ========== */
+try{history.replaceState({v:'learn'},'')}catch(e){}
+render();
+syncNow(true);
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude|anthropic/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
