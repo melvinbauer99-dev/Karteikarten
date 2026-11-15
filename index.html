@@ -298,7 +298,7 @@ function itemLabel(key){const [id,d]=key.split('|');const c=cardById(id);if(!c)r
   return cardLabel(c)+suf}
 function ensureDeck(rubric,name){name=String(name||'Allgemein').trim()||'Allgemein';let d=S.decks.find(x=>x.rubric===rubric&&x.name.toLowerCase()===name.toLowerCase());
   if(!d){d={id:uid(),rubric,name,created:Date.now()};S.decks.push(d)}return d}
-function cardKey(c){switch(c.type){case 'zh':return c.hanzi;case 'basic':return c.front;case 'cloze':return c.text;case 'table':return c.title}return ''}
+function cardKey(c){switch(c.type){case 'zh':return c.hanzi+'|'+String(c.pinyin||'').toLowerCase().replace(/\s+/g,'');case 'basic':return c.front;case 'cloze':return c.text;case 'table':return c.title}return ''}
 function upsertCard(deck,c){
   const ex=S.cards.find(x=>x.deck===deck.id&&x.type===c.type&&String(cardKey(x)).trim()===String(cardKey(c)).trim());
   if(ex){Object.assign(ex,c,{id:ex.id,deck:deck.id,updated:Date.now()});return false}
@@ -329,7 +329,7 @@ function renderLearn(app){
     <div class="panel"><h2>Willkommen</h2>
     <p>Zwei Rubriken: <b>Chinesisch</b> und <b>Neurochirurgie</b>. Innerhalb einer Rubrik lernst du alle Stapel gemischt, die beiden Rubriken werden nie vermischt.</p>
     <p>Gelernt wird mit dem Leitner-System: 5 Boxen mit 1, 2, 4, 8 und 16 Tagen Abstand. Gewusst rückt eine Box weiter, nicht gewusst geht zurück in Box 1.</p>
-    <div class="row"><button class="primary" onclick="A.loadSamples()">Beispielkarten laden</button><button onclick="go('data')">Eigene Karten importieren</button><button onclick="go('decks')">Selbst anlegen</button></div></div>`;
+    <div class="row"><button class="primary" onclick="A.loadHSK()">HSK 1–4 Vokabeln laden</button><button onclick="A.loadSamples()">Beispielkarten laden</button><button onclick="go('data')">Eigene Karten importieren</button><button onclick="go('decks')">Selbst anlegen</button></div></div>`;
     return;
   }
   let h='<h1>Lernen</h1>';
@@ -627,7 +627,8 @@ Vaskulär;tabelle;Hunt &amp; Hess;Grad | Klinik || I | asymptomatisch … || II 
   <div class="row" style="margin-bottom:12px"><button onclick="speak('你好，我在学习中文。')">🔊 Stimme testen</button><span class="small muted">${hasVoice?(zhVoice?'Stimme: '+esc(zhVoice.name):'Keine chinesische Stimme gefunden. Am Handy ggf. in den Systemeinstellungen (Sprachausgabe) Chinesisch installieren.'):'Sprachausgabe nicht verfügbar'}</span></div>
   <label>Darstellung<select onchange="A.set('theme',this.value)">${[['auto','Automatisch'],['light','Hell'],['dark','Dunkel']].map(([v,l])=>`<option value="${v}" ${st.theme===v?'selected':''}>${l}</option>`).join('')}</select></label>
   </div>
-  <div class="panel"><h2>Zurücksetzen</h2><div class="row"><button onclick="A.loadSamples()">Beispielkarten hinzufügen</button><button class="danger" onclick="A.resetProgress()">Lernfortschritt zurücksetzen</button><button class="danger" onclick="A.wipe()">Alles löschen</button></div>
+  <div class="panel"><h2>Fertige Kartensätze</h2><p class="small">Chinesisch HSK 1–4 (altes System, ca. 1200 Wörter, je mit Beispielsatz). Bereits geladene Karten werden aktualisiert, dein Lernstand bleibt erhalten.</p><div class="row"><button class="primary" onclick="A.loadHSK()">HSK 1–4 laden</button><button onclick="A.loadSamples()">Beispielkarten</button></div></div>
+  <div class="panel"><h2>Zurücksetzen</h2><div class="row"><button class="danger" onclick="A.resetProgress()">Lernfortschritt zurücksetzen</button><button class="danger" onclick="A.wipe()">Alles löschen</button></div>
   <p class="small muted">${S.cards.length} Karten · ${Object.keys(S.progress).length} Lerneinträge · ${syncCfg().token?'Wird über GitHub synchronisiert.':'Daten liegen nur lokal in diesem Browser.'}</p></div>`;
 }
 
@@ -807,6 +808,7 @@ const A={
     download(new Blob(['﻿stapel;hanzi;pinyin;deutsch;beispiel1_zh;beispiel1_pinyin;beispiel1_de;beispiel2_zh;beispiel2_pinyin;beispiel2_de;notiz\nHSK 1;你好;ni3 hao3;hallo;你好，老师！;ni3 hao3, lao3shi1!;Hallo, Lehrer!;;;;\n'],{type:'text/csv'}),'vorlage-chinesisch.csv');
     setTimeout(()=>download(new Blob(['﻿stapel;typ;vorderseite;rueckseite;notiz\nGrundlagen;definition;Monro-Kellie-Doktrin;Summe aus Hirn, Blut und Liquor ist bei geschlossenem Schädel konstant.;\nGrundlagen;lueckentext;CPP = {{c1::MAP}} − {{c2::ICP}};;\nVaskulär;tabelle;Modifizierte Fisher-Skala;Grad | CT-Befund || 0 | keine SAB, keine IVB || 1 | dünne SAB, keine IVB;\n'],{type:'text/csv'}),'vorlage-neurochirurgie.csv'),400);
   },
+  async loadHSK(){try{const r=await fetch('hsk1-4.json',{cache:'no-cache'});if(!r.ok)throw new Error('Datei nicht gefunden ('+r.status+')');toast('HSK 1–4: '+importText(await r.text(),{rubric:'zh',deck:'HSK'}),5000);render()}catch(e){toast('Laden fehlgeschlagen: '+e.message,6000)}},
   loadSamples(){toast(importText(JSON.stringify(SAMPLES),{rubric:'neuro',deck:'Beispiele'}));render()},
   async resetProgress(){if(!await ask('Gesamten Lernfortschritt zurücksetzen? Karten bleiben erhalten.',{ok:'Ja',danger:true}))return;S.progress={};S.log={};save();render()},
   async wipe(){if(!await ask('Wirklich ALLE Karten und den Fortschritt auf diesem Gerät löschen?',{ok:'Ja',danger:true}))return;const st=S.settings;S=defaults();S.settings=st;save();render()},
