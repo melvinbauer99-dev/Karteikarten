@@ -1,0 +1,303 @@
+{
+"decks": [
+{
+"rubrik": "Neurochirurgie",
+"name": "Tumors II: Meningioma, Sellar, Metastases, Skull & Spine (Greenberg)",
+"cards": [
+{
+"typ": "tabelle",
+"titel": "Meningioma: location-specific features",
+"zeilen": [
+[
+"Location",
+"Typical features"
+],
+[
+"Parasagittal/falx",
+"Most common sites together; contralateral leg weakness; SSS invasion decides resectability (do not ligate a patent posterior SSS)"
+],
+[
+"Convexity",
+"Most easily resected, Simpson I feasible"
+],
+[
+"Olfactory groove",
+"Anosmia, frontal personality change, Foster Kennedy syndrome; ACA branches pushed posteriorly"
+],
+[
+"Tuberculum sellae",
+"Asymmetric visual loss with normal pituitary function; optic canal invasion"
+],
+[
+"Sphenoid wing (medial/clinoidal)",
+"Visual loss, ICA/MCA encasement, cavernous sinus invasion; lateral wing tumors often en plaque with proptosis and hyperostosis"
+],
+[
+"Petroclival",
+"Cranial nerve V–VIII deficits, brainstem compression, perforator risk; high morbidity"
+],
+[
+"Foramen magnum",
+"Mostly anterior/anterolateral; \"clockwise\" progressive limb weakness, occipital pain, hand atrophy"
+]
+],
+"notiz": "Greenberg p. 803–812"
+},
+{
+"typ": "definition",
+"vorderseite": "Meningioma: observation, radiosurgery and radiation",
+"rueckseite": "- **Incidental, small, asymptomatic:** MRI surveillance (many do not grow, typically < 1–2 mm/yr; calcified tumors grow less)\n- **SRS:** small (< 3 cm) residual/recurrent or skull base tumors (cavernous sinus), good local control for grade 1\n- **Fractionated RT:** after subtotal resection of grade 2, after any resection of **grade 3**, optic nerve sheath meningioma\n- **Grade 2 after GTR:** RT vs. observation still debated\n- **Preoperative embolization** for large, hypervascular skull base tumors (best 7–10 days before surgery)",
+"notiz": "Greenberg p. 815–818"
+},
+{
+"typ": "definition",
+"vorderseite": "Neurocutaneous melanosis",
+"rueckseite": "Congenital **large or multiple giant melanocytic nevi** (often over the back, ≥ 20 cm adult size, or ≥ 3 lesions) plus **meningeal melanosis/melanoma** (leptomeningeal melanocytes).\nPresents in early childhood with **hydrocephalus**, seizures, raised ICP; associated with **Dandy–Walker** malformation.\nMRI: T1-hyperintense foci (amygdala, cerebellum, pons) and leptomeningeal enhancement.\nPrognosis poor once symptomatic; malignant transformation common.",
+"notiz": "Greenberg p. 653–654"
+},
+{
+"typ": "definition",
+"vorderseite": "CNS germ cell tumors: types and treatment",
+"rueckseite": "- **Germinoma:** radiosensitive; biopsy (often with ETV) → **chemotherapy + reduced-dose RT** (craniospinal or whole-ventricular); > 90% survival\n- **Non-germinomatous GCTs** (embryonal carcinoma, **yolk sac** → AFP, **choriocarcinoma** → very high β-hCG and hemorrhage, mixed): chemotherapy + RT, then **second-look surgery** for residual mass\n- **Mature teratoma:** surgery alone is curative\n- **Growing teratoma syndrome:** mass enlarges during chemotherapy while markers fall → mature teratoma component → resect\n- Markers rule out surgery when diagnostic (high AFP/β-hCG); germinomas may have mildly raised β-hCG (syncytiotrophoblasts)",
+"notiz": "Greenberg p. 831–840"
+},
+{
+"typ": "definition",
+"vorderseite": "Langerhans cell histiocytosis",
+"rueckseite": "Clonal Langerhans cells (**CD1a**, **langerin/CD207**, S100; Birbeck granules; **BRAF V600E** often); 70% under 20 years.\n**Skull:** tender enlarging lump; X-ray: round **punched-out** lytic lesion with **beveled edges**, no sclerotic rim; \"button sequestrum\".\n**CNS:** hypothalamic–pituitary region → **diabetes insipidus**, thickened stalk; neurodegenerative leukoencephalopathy.\nHand–Schüller–Christian triad: skull lesions, DI, exophthalmos.\n**Treatment:** solitary skull lesion → curettage/excision (or steroid injection); multisystem → chemotherapy (vinblastine/prednisone), BRAF inhibitors.",
+"notiz": "Greenberg p. 846–848, 974"
+},
+{
+"typ": "tabelle",
+"titel": "Knosp grading (cavernous sinus invasion by pituitary tumors)",
+"zeilen": [
+[
+"Grade",
+"Lateral extent relative to the ICA (coronal MRI)"
+],
+[
+"0",
+"Does not reach the medial tangent between the intracavernous and supraclinoid ICA"
+],
+[
+"1",
+"Beyond the medial tangent, not past the intercarotid line (centers of the ICA)"
+],
+[
+"2",
+"Beyond the intercarotid line, not past the lateral tangent"
+],
+[
+"3A / 3B",
+"Beyond the lateral tangent, into the superior (3A) or inferior (3B) cavernous compartment"
+],
+[
+"4",
+"Total encasement of the intracavernous ICA"
+]
+],
+"notiz": "Greenberg Table 52.7, p. 884. Grades 3–4 = true invasion; gross total resection becomes unlikely (3B and 4 worst)."
+},
+{
+"typ": "definition",
+"vorderseite": "Pituitary tumor: initial endocrine screening",
+"rueckseite": "- **Prolactin** (dilute the sample if a large tumor has a low value → **hook effect**)\n- **IGF-1** (best screen for acromegaly; GH itself is pulsatile)\n- **8 AM cortisol** ± ACTH; 24-h urinary free cortisol / late-night salivary cortisol / 1 mg dexamethasone test if Cushing suspected\n- **TSH and free T4** (low/normal TSH with low T4 = central hypothyroidism)\n- **LH, FSH**, testosterone/estradiol\n- Serum Na and osmolality (DI)\n- Formal **visual fields** and acuity",
+"notiz": "Greenberg p. 876–881"
+},
+{
+"typ": "definition",
+"vorderseite": "Prolactinoma: management",
+"rueckseite": "The only pituitary tumor with **medical first-line therapy** (dopamine agonist, **cabergoline** preferred: more effective, better tolerated).\n- PRL **> 500 ng/mL:** surgical normalization unlikely → medical therapy first; response expected within 4–6 weeks\n- **Surgery:** dopamine agonist intolerance or resistance, apoplexy, CSF leak, cystic tumors, patient preference (microadenoma)\n- **Pregnancy:** symptomatic growth in < 3% of microadenomas vs. **≈ 30% of macroadenomas** → follow visual fields\n- Dopamine agonist shrinkage of invasive tumors can cause **CSF rhinorrhea**; prolonged bromocriptine may cause fibrosis and lower surgical cure\n- Cabergoline at high doses: cardiac valve fibrosis",
+"notiz": "Greenberg p. 888–889"
+},
+{
+"typ": "definition",
+"vorderseite": "Acromegaly: diagnosis and treatment",
+"rueckseite": "**Diagnosis:** elevated age-adjusted **IGF-1**; confirm with **failure of GH suppression < 1 ng/mL** after a 75 g oral glucose load.\n**Morbidity:** cardiomyopathy, hypertension, diabetes, sleep apnea, colon polyps, arthropathy, carpal tunnel → reduced life expectancy.\n**Treatment:** **transsphenoidal surgery** first; then somatostatin analogs (octreotide, lanreotide, pasireotide), **pegvisomant** (GH-receptor antagonist: normalizes IGF-1 in ≈ 97%, tumor size unchanged), cabergoline, radiotherapy/SRS.\n**Cure:** normal IGF-1 and GH < 1 ng/mL after glucose.",
+"notiz": "Greenberg p. 870, 889–890"
+},
+{
+"typ": "definition",
+"vorderseite": "Cushing disease: localization and treatment",
+"rueckseite": "After biochemical Cushing syndrome with **ACTH-dependent** pattern: MRI (microadenoma often invisible) and **inferior petrosal sinus sampling** with CRH/desmopressin (central:peripheral ACTH ratio ≥ 2 basal or ≥ 3 after stimulation = pituitary source; lateralization unreliable).\n**Treatment:** transsphenoidal resection; **postoperative cortisol nadir < 2–5 mcg/dL** predicts remission (patients need replacement). Failures: repeat surgery, RT/SRS, medication (ketoconazole, metyrapone, osilodrostat, pasireotide), **bilateral adrenalectomy**.",
+"notiz": "Greenberg p. 868–869, 891–892"
+},
+{
+"typ": "definition",
+"vorderseite": "Nelson syndrome",
+"rueckseite": "Follows **10–30% of bilateral adrenalectomies** for Cushing disease: loss of cortisol feedback lets the corticotroph adenoma grow.\n**Triad:** **hyperpigmentation** (earliest sign; ACTH/MSH), markedly elevated ACTH, enlarging pituitary tumor (can be aggressive, invade the cavernous sinus).\n**Treatment:** transsphenoidal or transcranial surgery, radiation/SRS, medication.",
+"notiz": "Greenberg p. 869"
+},
+{
+"typ": "definition",
+"vorderseite": "TSH-secreting pituitary adenoma",
+"rueckseite": "Rare (< 1–2%); **central hyperthyroidism:** elevated free T4/T3 with **normal or high TSH** (inappropriately unsuppressed), elevated α-subunit.\nOften **large and invasive** at diagnosis (many previously treated with thyroid ablation, which removes feedback).\n**Treatment:** render euthyroid preoperatively (somatostatin analog ± antithyroid drugs, β-blocker), then transsphenoidal surgery; somatostatin analogs or RT for residual tumor.",
+"notiz": "Greenberg p. 871, 892"
+},
+{
+"typ": "definition",
+"vorderseite": "After transsphenoidal surgery: DI watch and delayed hyponatremia",
+"rueckseite": "- Strict intake/output hourly, urine specific gravity, Na every 6 h\n- **DI criteria:** urine output **> 250 mL/h for 2 h** with **specific gravity < 1.005**\n- Steroid coverage until the axis is tested (always in Cushing disease)\n- No straws, nose blowing or incentive spirometry (CSF leak)\n- **Delayed hyponatremia (SIADH) ≈ day 5–10** (peak around day 7) → check Na about 1 week after discharge; mild fluid restriction\n- Remember the triphasic response",
+"notiz": "Greenberg p. 901–902"
+},
+{
+"typ": "definition",
+"vorderseite": "Transsphenoidal surgery: complications",
+"rueckseite": "- **CSF leak** (most common serious one; risk higher with intraoperative leak, extended approaches) → meningitis\n- **Carotid artery injury** (cavernous/paraclival ICA): pack, control BP, then angiography (pseudoaneurysm, CCF) → endovascular treatment\n- Hypopituitarism, **DI**, SIADH\n- Visual worsening (hematoma in the tumor bed, overpacking, chiasmal prolapse into an empty sella)\n- Epistaxis (sphenopalatine artery), sinusitis, anosmia, septal perforation\n- Mortality < 1%",
+"notiz": "Greenberg p. 900"
+},
+{
+"typ": "definition",
+"vorderseite": "Posterior pituitary tumors (pituicytoma, granular cell tumor, spindle cell oncocytoma)",
+"rueckseite": "Low-grade (CNS WHO grade 1) tumors of the **neurohypophysis/infundibulum** (TTF-1 positive) in adults; mimic nonfunctioning macroadenomas.\nKey surgical point: they are **highly vascular and firm**, often adherent to the stalk/hypothalamus → bleeding, subtotal resection, postoperative DI more common.\nPresentation: visual loss, hypopituitarism, mild hyperprolactinemia (stalk effect).",
+"notiz": "Greenberg p. 853–855"
+},
+{
+"typ": "definition",
+"vorderseite": "Carcinomatous (neoplastic) meningitis",
+"rueckseite": "Leptomeningeal spread in ≈ 5–8% of systemic cancers: **breast, lung, melanoma**, leukemia/lymphoma; also primary CNS tumors (medulloblastoma, ependymoma, GBM).\n**Clinic:** multifocal signs at several levels: cranial nerve palsies, radiculopathies, headache, hydrocephalus, confusion.\n**Diagnosis:** contrast MRI of brain and **entire spine** (before LP); CSF cytology positive in ≈ 50% on the first LP, ≈ 90% after **three** LPs (high volume, rapid processing); high protein, low glucose.\n**Treatment:** palliative: RT to bulky/symptomatic sites, intrathecal chemotherapy (via **Ommaya reservoir**), systemic agents, shunt for hydrocephalus. Median survival weeks to months.",
+"notiz": "Greenberg p. 920–922"
+},
+{
+"typ": "tabelle",
+"titel": "Olfactory neuroblastoma (esthesioneuroblastoma): Kadish stages",
+"zeilen": [
+[
+"Stage",
+"Extent"
+],
+[
+"A",
+"Confined to the nasal cavity"
+],
+[
+"B",
+"Nasal cavity + paranasal sinuses"
+],
+[
+"C",
+"Beyond the sinuses (orbit, skull base, intracranial, cervical nodes, metastases)"
+]
+],
+"notiz": "Greenberg p. 935–937. Arises from olfactory epithelium (cribriform plate), bimodal age peaks; presents with nasal obstruction, epistaxis, anosmia; \"dumbbell\" mass across the cribriform plate. Treatment: craniofacial or endoscopic endonasal resection + RT."
+},
+{
+"typ": "definition",
+"vorderseite": "Pineal cysts",
+"rueckseite": "Incidental in ≈ 1–4% of MRIs (up to 40% at autopsy); young women.\nTypical: < 1–1.5 cm, CSF-like or slightly T1/FLAIR hyperintense, **thin rim enhancement**, no solid nodule.\nUsually asymptomatic → **no routine follow-up** if typical (or one follow-up scan).\n**Surgery** only for hydrocephalus, Parinaud syndrome, growth or atypical features (nodular enhancement → consider pineocytoma); rare **pineal apoplexy**.",
+"notiz": "Greenberg p. 948–950"
+},
+{
+"typ": "definition",
+"vorderseite": "Empty sella syndrome",
+"rueckseite": "Sella filled with CSF because the diaphragma sellae is incompetent and the gland is flattened.\n- **Primary:** obese, hypertensive middle-aged women; associated with **idiopathic intracranial hypertension**; usually asymptomatic, pituitary function generally normal (mild hyperprolactinemia), rarely CSF rhinorrhea\n- **Secondary:** after surgery, radiation, apoplexy or bromocriptine shrinkage; can cause **chiasmal herniation** with visual loss (chiasmapexy)\n\nNo treatment unless symptomatic.",
+"notiz": "Greenberg p. 951–952"
+},
+{
+"typ": "definition",
+"vorderseite": "Modified Dandy criteria for idiopathic intracranial hypertension",
+"rueckseite": "1. Signs and symptoms of raised ICP (headache, papilledema, pulsatile tinnitus, transient visual obscurations)\n2. **No localizing signs** except VI palsy\n3. Awake and alert\n4. **Normal imaging** (no mass, no hydrocephalus, no venous sinus thrombosis on MRV)\n5. **Opening pressure > 25 cm H₂O** (lateral decubitus, relaxed) with **normal CSF** composition\n6. No other cause\n\nMRI signs: empty sella, flattened posterior globe, distended optic nerve sheaths, **transverse sinus stenosis**. For refractory cases with a pressure gradient: **venous sinus stenting**.",
+"notiz": "Greenberg p. 958–964"
+},
+{
+"typ": "tabelle",
+"titel": "Benign skull lesions",
+"zeilen": [
+[
+"Lesion",
+"Imaging / key features"
+],
+[
+"Osteoma",
+"Most common primary bone tumor of the calvaria; dense, outer table, sinus (frontal); Gardner syndrome if multiple"
+],
+[
+"Hemangioma",
+"Expanded diploë, **honeycomb/sunburst** trabeculae, \"spoke-wheel\"; resect with margin of normal bone"
+],
+[
+"Epidermoid/dermoid",
+"Lytic lesion with a **sclerotic rim**, diploic expansion"
+],
+[
+"Langerhans cell histiocytosis",
+"Punched-out lytic lesion, **beveled edges**, no sclerotic rim, tender"
+],
+[
+"Fibrous dysplasia",
+"**Ground-glass** expansion; McCune–Albright (polyostotic + café-au-lait + precocious puberty); optic canal narrowing"
+],
+[
+"Hyperostosis frontalis interna",
+"Bilateral inner table thickening of the frontal bone, older women, harmless (vs. meningioma: unilateral)"
+],
+[
+"Paget disease",
+"Osteoporosis circumscripta (lytic), later cotton-wool skull; basilar invagination, hearing loss"
+]
+],
+"notiz": "Greenberg p. 972–976"
+},
+{
+"typ": "lueckentext",
+"text": "Spinal tumors by compartment: **extradural** {{c1::≈ 55%}} (mostly metastases), **intradural extramedullary** {{c2::≈ 40%}} (meningioma, schwannoma), **intramedullary** {{c3::≈ 5%}} (ependymoma, astrocytoma, hemangioblastoma). Myelography sign of an IDEM tumor: {{c4::meniscus (cap) sign with widening of the ipsilateral subarachnoid space}}.",
+"notiz": "Greenberg p. 979–980"
+},
+{
+"typ": "tabelle",
+"titel": "Osteoid osteoma vs. osteoblastoma",
+"zeilen": [
+[
+"Feature",
+"Osteoid osteoma",
+"Osteoblastoma"
+],
+[
+"Size",
+"< 1.5–2 cm nidus",
+"> 1.5–2 cm, expansile"
+],
+[
+"Location",
+"Posterior elements (lamina, pedicle), lumbar",
+"Posterior elements, cervical/thoracic"
+],
+[
+"Pain",
+"**Night pain relieved by NSAIDs/aspirin**",
+"Dull, less NSAID-responsive"
+],
+[
+"Scoliosis",
+"Painful scoliosis, **concave toward the lesion**",
+"May occur"
+],
+[
+"Course",
+"Self-limited, no malignant change",
+"Can be aggressive, recurs; rare malignant change"
+],
+[
+"Treatment",
+"NSAIDs, CT-guided **RF ablation** or excision of the nidus",
+"**Complete (en bloc) resection** ± fusion"
+]
+],
+"notiz": "Greenberg p. 990–991. CT: lucent nidus with surrounding sclerosis; intense uptake on bone scan."
+},
+{
+"typ": "definition",
+"vorderseite": "Vertebral hemangioma",
+"rueckseite": "Most common benign spinal tumor (≈ 10% at autopsy), usually incidental.\n**Imaging:** vertical **\"corduroy\"** striations (X-ray/sagittal CT), **\"polka-dot\"** on axial CT; T1 and T2 bright (fat).\n**Aggressive hemangioma** (rare, thoracic, T1 hypointense, extends into the canal/soft tissue, pregnancy) → cord compression.\n**Treatment of symptomatic/aggressive:** **preoperative embolization** or vertebroplasty (ethanol injection), decompression, radiation.",
+"notiz": "Greenberg p. 992–993"
+},
+{
+"typ": "definition",
+"vorderseite": "Giant cell tumor and aneurysmal bone cyst of the spine",
+"rueckseite": "**Giant cell tumor:** young adults (20–40), **sacrum** and vertebral bodies; lytic, expansile, no matrix; locally aggressive, high recurrence, rare lung metastases. Treatment: **en bloc** or intralesional resection, **denosumab** (RANKL inhibitor), embolization, RT for unresectable.\n**Aneurysmal bone cyst:** children/adolescents, posterior elements, expansile with **fluid–fluid levels**; may be secondary to GCT/osteoblastoma. Treatment: embolization, curettage/resection, sclerotherapy, denosumab.",
+"notiz": "Greenberg p. 995–997"
+}
+]
+}
+]
+}
