@@ -248,19 +248,22 @@ function hanziHTML(hz,py,color){
 }
 
 /* ========== Sprachausgabe ========== */
-let zhVoice=null,curUtt=null,ttsAudio=null;
+let zhVoice=null,curUtt=null,ttsAudio=null,audioUnlocked=false;
+const SILENT='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+function unlockAudio(){if(audioUnlocked)return;try{ttsAudio=ttsAudio||new Audio();ttsAudio.src=SILENT;const pr=ttsAudio.play();pr&&pr.catch(()=>{});audioUnlocked=true}catch(e){}}
 function pickVoice(){if(!('speechSynthesis' in window))return;const vs=speechSynthesis.getVoices();zhVoice=vs.find(v=>/zh[-_]CN/i.test(v.lang))||vs.find(v=>/^(zh|cmn)/i.test(v.lang)&&!/HK|yue/i.test(v.lang))||vs.find(v=>/^(zh|cmn)/i.test(v.lang))||vs.find(v=>/chinese|mandarin|普通话|中文/i.test(v.name))||null}
 if('speechSynthesis' in window){pickVoice();speechSynthesis.addEventListener?.('voiceschanged',pickVoice);setTimeout(pickVoice,500);setTimeout(pickVoice,2000)}
 // Ersatz, wenn das Gerät keine chinesische Stimme hat: Online-Sprachausgabe (braucht Internet)
-function speakOnline(text){if((S.settings.tts||'auto')==='device')return toast('Keine chinesische Gerätestimme verfügbar. In Einstellungen „Automatisch“ wählen.');try{if(ttsAudio){ttsAudio.pause()}ttsAudio=new Audio('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q='+encodeURIComponent(text.slice(0,190)));ttsAudio.playbackRate=Math.max(0.5,Math.min(2,S.settings.rate/0.85));ttsAudio.play().catch(()=>toast('Audio konnte nicht abgespielt werden. Bitte 🔊 antippen bzw. Internet prüfen.'))}catch(e){toast('Audio nicht verfügbar')}}
+function speakOnline(text){if((S.settings.tts||'auto')==='device')return toast('Keine chinesische Gerätestimme verfügbar. In Einstellungen „Automatisch“ wählen.');try{ttsAudio=ttsAudio||new Audio();ttsAudio.pause();ttsAudio.src=('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q='+encodeURIComponent(text.slice(0,190)));ttsAudio.playbackRate=Math.max(0.5,Math.min(2,S.settings.rate/0.85));ttsAudio.play().catch(()=>toast('Audio konnte nicht abgespielt werden. Bitte 🔊 antippen bzw. Internet prüfen.'))}catch(e){toast('Audio nicht verfügbar')}}
 function speak(text){
   if(!text)return;
+  unlockAudio();
   const mode=S.settings.tts||'auto';
   if(!('speechSynthesis' in window)||mode==='online')return speakOnline(text);
   if(!zhVoice)pickVoice();
   if(!zhVoice&&speechSynthesis.getVoices().length)return speakOnline(text);
   const go=()=>{const u=new SpeechSynthesisUtterance(text);curUtt=u;u.lang=zhVoice?zhVoice.lang:'zh-CN';if(zhVoice)u.voice=zhVoice;u.rate=S.settings.rate;let started=false,fb=false;const fall=()=>{if(fb||started)return;fb=true;speechSynthesis.cancel();speakOnline(text)};u.onstart=()=>{started=true};u.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled')fall()};speechSynthesis.resume();speechSynthesis.speak(u);setTimeout(()=>{if(curUtt===u&&!speechSynthesis.speaking)fall()},1500)};
-  if(speechSynthesis.speaking||speechSynthesis.pending){speechSynthesis.cancel();setTimeout(go,80)}else go();
+  if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();go();
 }
 
 /* ========== Text-Formatierung ========== */
@@ -421,7 +424,7 @@ function recallBox(id,ph){return `<input class="recall" id="${id}" placeholder="
 function mineHTML(id){const v=(sess.inputs[id]||'').trim();return v?`<div class="mine">Deine Antwort: ${esc(v)}</div>`:''}
 function examplesHTML(c){
   if(!c.examples||!c.examples.length)return '';
-  return `<ul class="examples">${c.examples.map((e,i)=>`<li><div class="spread"><span class="ezh">${hanziHTML(e.zh,e.py,true)}</span><button class="speak ghost" onclick="A.speakEx(${i})" aria-label="Vorlesen">🔊</button></div>${e.py?`<div class="epy">${pinyinHTML(e.py)}</div>`:''}${e.de?`<div class="ede">${esc(e.de)}</div>`:''}</li>`).join('')}</ul>`;
+  return `<ul class="examples">${c.examples.map((e,i)=>`<li><div class="spread"><span class="ezh">${esc(e.zh)}</span><button class="speak ghost" onclick="A.speakEx(${i})" aria-label="Vorlesen">🔊</button></div>${e.py?`<div class="epy">${esc(normalizePinyin(e.py))}</div>`:''}${e.de?`<div class="ede">${esc(e.de)}</div>`:''}</li>`).join('')}</ul>`;
 }
 function cardHTML(c,dir,rev){
   let q='',a='';
@@ -631,6 +634,7 @@ Vaskulär;tabelle;Hunt &amp; Hess;Grad | Klinik || I | asymptomatisch … || II 
   ${Object.entries(DIRS).map(([k,l])=>`<label class="check"><input type="checkbox" ${st.dirs[k]?'checked':''} onchange="A.setDir('${k}',this.checked)"> ${l}</label>`).join('')}
   <label class="check"><input type="checkbox" ${st.autoplay?'checked':''} onchange="A.set('autoplay',this.checked)"> Aussprache automatisch abspielen</label>
   <label>Sprechtempo: <span id="rate-v">${st.rate}</span><input type="range" min="0.5" max="1.2" step="0.05" value="${st.rate}" oninput="$('#rate-v').textContent=this.value" onchange="A.set('rate',+this.value)"></label>
+  <div class="small muted" style="margin-bottom:8px">Farben bei Wort und Pinyin = Töne: <span class="t1">1. Ton</span> · <span class="t2">2. Ton</span> · <span class="t3">3. Ton</span> · <span class="t4">4. Ton</span> · <span class="t5">neutral</span></div>
   <label>Sprachausgabe: <select onchange="A.set('tts',this.value)"><option value="auto" ${(st.tts||'auto')==='auto'?'selected':''}>Automatisch (Gerät, sonst online)</option><option value="device" ${st.tts==='device'?'selected':''}>Nur Gerätestimme</option><option value="online" ${st.tts==='online'?'selected':''}>Immer online</option></select></label>
   <div class="row" style="margin-bottom:12px"><button onclick="speak('你好，我在学习中文。')">🔊 Stimme testen</button><span class="small muted">${hasVoice?(zhVoice?'Stimme: '+esc(zhVoice.name):'Keine chinesische Gerätestimme gefunden – es wird die Online-Stimme genutzt (Internet nötig). Alternativ in den Systemeinstellungen (Sprachausgabe) Chinesisch installieren.'):'Sprachausgabe nicht verfügbar'}</span></div>
   <label>Darstellung<select onchange="A.set('theme',this.value)">${[['auto','Automatisch'],['light','Hell'],['dark','Dunkel']].map(([v,l])=>`<option value="${v}" ${st.theme===v?'selected':''}>${l}</option>`).join('')}</select></label>
