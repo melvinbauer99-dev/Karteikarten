@@ -248,12 +248,19 @@ function hanziHTML(hz,py,color){
 }
 
 /* ========== Sprachausgabe ========== */
-let zhVoice=null;
-function pickVoice(){const vs=speechSynthesis.getVoices();zhVoice=vs.find(v=>/zh[-_]CN/i.test(v.lang))||vs.find(v=>/^zh|^cmn/i.test(v.lang))||vs.find(v=>/chinese|mandarin/i.test(v.name))||null}
-if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+let zhVoice=null,curUtt=null,ttsAudio=null;
+function pickVoice(){if(!('speechSynthesis' in window))return;const vs=speechSynthesis.getVoices();zhVoice=vs.find(v=>/zh[-_]CN/i.test(v.lang))||vs.find(v=>/^(zh|cmn)/i.test(v.lang)&&!/HK|yue/i.test(v.lang))||vs.find(v=>/^(zh|cmn)/i.test(v.lang))||vs.find(v=>/chinese|mandarin|普通话|中文/i.test(v.name))||null}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.addEventListener?.('voiceschanged',pickVoice);setTimeout(pickVoice,500);setTimeout(pickVoice,2000)}
+// Ersatz, wenn das Gerät keine chinesische Stimme hat: Online-Sprachausgabe (braucht Internet)
+function speakOnline(text){if((S.settings.tts||'auto')==='device')return toast('Keine chinesische Gerätestimme verfügbar. In Einstellungen „Automatisch“ wählen.');try{if(ttsAudio){ttsAudio.pause()}ttsAudio=new Audio('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q='+encodeURIComponent(text.slice(0,190)));ttsAudio.playbackRate=Math.max(0.5,Math.min(2,S.settings.rate/0.85));ttsAudio.play().catch(()=>toast('Audio konnte nicht abgespielt werden. Bitte 🔊 antippen bzw. Internet prüfen.'))}catch(e){toast('Audio nicht verfügbar')}}
 function speak(text){
-  if(!('speechSynthesis' in window))return toast('Sprachausgabe wird von diesem Browser nicht unterstützt');
-  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';if(zhVoice)u.voice=zhVoice;u.rate=S.settings.rate;speechSynthesis.speak(u);
+  if(!text)return;
+  const mode=S.settings.tts||'auto';
+  if(!('speechSynthesis' in window)||mode==='online')return speakOnline(text);
+  if(!zhVoice)pickVoice();
+  if(!zhVoice&&speechSynthesis.getVoices().length)return speakOnline(text);
+  const go=()=>{const u=new SpeechSynthesisUtterance(text);curUtt=u;u.lang=zhVoice?zhVoice.lang:'zh-CN';if(zhVoice)u.voice=zhVoice;u.rate=S.settings.rate;let started=false,fb=false;const fall=()=>{if(fb||started)return;fb=true;speechSynthesis.cancel();speakOnline(text)};u.onstart=()=>{started=true};u.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled')fall()};speechSynthesis.resume();speechSynthesis.speak(u);setTimeout(()=>{if(curUtt===u&&!speechSynthesis.speaking)fall()},1500)};
+  if(speechSynthesis.speaking||speechSynthesis.pending){speechSynthesis.cancel();setTimeout(go,80)}else go();
 }
 
 /* ========== Text-Formatierung ========== */
@@ -461,7 +468,7 @@ function gradeItem(g){
     }
   }
   if(g===0&&it.retry<3){const q=sess.queue;const at=Math.min(q.length,sess.pos+4+Math.floor(Math.random()*4));q.splice(at,0,{key:it.key,retry:it.retry+1,id:uid()})}
-  save();sess.pos++;if(sess.pos>=sess.queue.length)scheduleSync(500);sess.revealed=false;sess.inputs={};speechSynthesis?.cancel?.();render();window.scrollTo(0,0);
+  save();sess.pos++;if(sess.pos>=sess.queue.length)scheduleSync(500);sess.revealed=false;sess.inputs={};speechSynthesis?.cancel?.();ttsAudio?.pause?.();render();window.scrollTo(0,0);
 }
 document.addEventListener('keydown',e=>{
   if(view!=='study'||!sess||!curItem()||$('.modal'))return;
@@ -624,7 +631,8 @@ Vaskulär;tabelle;Hunt &amp; Hess;Grad | Klinik || I | asymptomatisch … || II 
   ${Object.entries(DIRS).map(([k,l])=>`<label class="check"><input type="checkbox" ${st.dirs[k]?'checked':''} onchange="A.setDir('${k}',this.checked)"> ${l}</label>`).join('')}
   <label class="check"><input type="checkbox" ${st.autoplay?'checked':''} onchange="A.set('autoplay',this.checked)"> Aussprache automatisch abspielen</label>
   <label>Sprechtempo: <span id="rate-v">${st.rate}</span><input type="range" min="0.5" max="1.2" step="0.05" value="${st.rate}" oninput="$('#rate-v').textContent=this.value" onchange="A.set('rate',+this.value)"></label>
-  <div class="row" style="margin-bottom:12px"><button onclick="speak('你好，我在学习中文。')">🔊 Stimme testen</button><span class="small muted">${hasVoice?(zhVoice?'Stimme: '+esc(zhVoice.name):'Keine chinesische Stimme gefunden. Am Handy ggf. in den Systemeinstellungen (Sprachausgabe) Chinesisch installieren.'):'Sprachausgabe nicht verfügbar'}</span></div>
+  <label>Sprachausgabe: <select onchange="A.set('tts',this.value)"><option value="auto" ${(st.tts||'auto')==='auto'?'selected':''}>Automatisch (Gerät, sonst online)</option><option value="device" ${st.tts==='device'?'selected':''}>Nur Gerätestimme</option><option value="online" ${st.tts==='online'?'selected':''}>Immer online</option></select></label>
+  <div class="row" style="margin-bottom:12px"><button onclick="speak('你好，我在学习中文。')">🔊 Stimme testen</button><span class="small muted">${hasVoice?(zhVoice?'Stimme: '+esc(zhVoice.name):'Keine chinesische Gerätestimme gefunden – es wird die Online-Stimme genutzt (Internet nötig). Alternativ in den Systemeinstellungen (Sprachausgabe) Chinesisch installieren.'):'Sprachausgabe nicht verfügbar'}</span></div>
   <label>Darstellung<select onchange="A.set('theme',this.value)">${[['auto','Automatisch'],['light','Hell'],['dark','Dunkel']].map(([v,l])=>`<option value="${v}" ${st.theme===v?'selected':''}>${l}</option>`).join('')}</select></label>
   </div>
   <div class="panel"><h2>Fertige Kartensätze</h2><p class="small">Chinesisch HSK 1–4 (altes System, ca. 1200 Wörter, je mit Beispielsatz) und Neurochirurgie-Stapel aus deinen Büchern (auf Englisch). Erneutes Laden holt neue Stapel dazu, dein Lernstand bleibt. Bereits geladene Karten werden aktualisiert, dein Lernstand bleibt erhalten.</p><div class="row"><button class="primary" onclick="A.loadHSK()">HSK 1–4 laden</button><button class="primary" onclick="A.loadNCH()">Neurochirurgie laden</button><button onclick="A.loadSamples()">Beispielkarten</button></div></div>
